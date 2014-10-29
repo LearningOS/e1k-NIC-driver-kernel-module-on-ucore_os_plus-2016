@@ -7,7 +7,7 @@
 #include <error.h>
 #include <pmm.h>
 #include <arch.h>
-#include <swap.h>
+#include <swap_manager.h>
 #include <shmem.h>
 #include <proc.h>
 #include <sem.h>

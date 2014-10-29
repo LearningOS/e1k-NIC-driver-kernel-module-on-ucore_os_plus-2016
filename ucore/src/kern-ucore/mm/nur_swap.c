@@ -1,7 +1,6 @@
 #include <pmm.h>
 #include <vmm.h>
-#include <swap.h>
-#include <swapfs.h>
+#include <nur_swap.h>
 #include <slab.h>
 #include <assert.h>
 #include <stdio.h>
@@ -17,6 +16,7 @@
 #include <kio.h>
 #include <mp.h>
 #include <sched.h>
+#include <swap_manager.h>
 
 #ifdef UCONFIG_SWAP
 
@@ -99,28 +99,15 @@ swap_list_t inactive_list;
 // the value of array element is the reference number of swap out page
 // page->ref+mem_map[offset]= the total reference number of a page(in mem OR swap space)
 // the index of array element is the offset of swap space(disk)
-unsigned short *mem_map;
-
-#define SWAP_UNUSED                     0xFFFF
-#define MAX_SWAP_REF                    0xFFFE
-
+extern unsigned short *mem_map;
+extern list_entry_t swap_hash_list[HASH_LIST_SIZE];
 static volatile bool swap_init_ok = 0;
-
-#define HASH_SHIFT                      10
-#define HASH_LIST_SIZE                  (1 << HASH_SHIFT)
-#define entry_hashfn(x)                 (hash32(x, HASH_SHIFT))
-
-// the hash list used to find swap page according to swap entry quickly.
-static list_entry_t hash_list[HASH_LIST_SIZE];
 
 static void check_swap(void);
 void check_mm_swap(void);
 void check_mm_shm_swap(void);
 
-static semaphore_t swap_in_sem;
-
 static volatile int pressure = 0;
-static wait_queue_t kswapd_done;
 
 // swap_list_init - initialize the swap list
 static void swap_list_init(swap_list_t * list)
@@ -149,8 +136,8 @@ static inline void swap_inactive_list_add(struct Page *page)
 	list_add_before(&(list->swap_list), &(page->swap_link));
 }
 
-// swap_list_del - delete page from the swap list
-static inline void swap_list_del(struct Page *page)
+// nur_swap_list_del - delete page from the swap list
+void nur_swap_list_del(struct Page *page)
 {
 	assert(PageSwap(page));
 	(PageActive(page) ? &active_list : &inactive_list)->nr_pages--;
@@ -161,36 +148,11 @@ static inline void swap_list_del(struct Page *page)
 //           - init the hash list.
 void swap_init(void)
 {
-	swapfs_init();
 	swap_list_init(&active_list);
 	swap_list_init(&inactive_list);
-
-	if (!
-	    (512 <= max_swap_offset
-	     && max_swap_offset < MAX_SWAP_OFFSET_LIMIT)) {
-		panic("bad max_swap_offset %08x.\n", max_swap_offset);
-	}
-
-	mem_map = kmalloc(sizeof(short) * max_swap_offset);
-	assert(mem_map != NULL);
-
-	size_t offset;
-	for (offset = 0; offset < max_swap_offset; offset++) {
-		mem_map[offset] = SWAP_UNUSED;
-	}
-
-	int i;
-	for (i = 0; i < HASH_LIST_SIZE; i++) {
-		list_init(hash_list + i);
-	}
-
-	sem_init(&swap_in_sem, 1);
-
-	check_swap();
-	check_mm_swap();
+	
+	//check_mm_swap();
 	check_mm_shm_swap();
-
-	wait_queue_init(&kswapd_done);
 	swap_init_ok = 1;
 }
 
@@ -230,241 +192,109 @@ bool try_free_pages(size_t n)
 	return 1;
 }
 
-static void kswapd_wakeup_all(void)
+
+// nur_swap_copy_entry - copy a content of swap out page frame to a new page
+//                 - set this new page PG_swap flag and add to swap active list
+int nur_swap_copy_entry(swap_entry_t entry, swap_entry_t * store)
 {
-	bool intr_flag;
-	local_intr_save(intr_flag);
-	{
-		wakeup_queue(&kswapd_done, WT_KSWAPD, 1);
-	}
-	local_intr_restore(intr_flag);
-}
+    if (store == NULL) {
+        return -E_INVAL;
+    }
 
-static swap_entry_t try_alloc_swap_entry(void);
+    int ret = -E_NO_MEM;
+    struct Page *page, *newpage;
+    swap_duplicate(entry);
+    if ((newpage = alloc_page()) == NULL) {
+        goto failed;
+    }
+    if ((ret = swap_in_page(entry, &page)) != 0) {
+        goto failed_free_page;
+    }
+    ret = -E_NO_MEM;
+    if (!swap_page_add(newpage, 0)) {
+        goto failed_free_page;
+    }
+    swap_active_list_add(newpage);
+    memcpy(page2kva(newpage), page2kva(page), PGSIZE);
+    *store = newpage->index;
+    ret = 0;
+out:
+    nur_swap_remove_entry(entry);
+    return ret;
 
-// swap_page_add - set PG_swap flag in page, set page->index = entry, and add page to hash_list.
-//               - if entry==0, It means ???
-static bool swap_page_add(struct Page *page, swap_entry_t entry)
-{
-	assert(!PageSwap(page));
-	if (entry == 0) {
-		if ((entry = try_alloc_swap_entry()) == 0) {
-			return 0;
-		}
-		assert(mem_map[swap_offset(entry)] == SWAP_UNUSED);
-		mem_map[swap_offset(entry)] = 0;
-		SetPageDirty(page);
-	}
-	SetPageSwap(page);
-	page->index = entry;
-	list_add(hash_list + entry_hashfn(entry), &(page->page_link));
-	return 1;
-}
-
-// swap_page_del - clear PG_swap flag in page, and del page from hash_list.
-static void swap_page_del(struct Page *page)
-{
-	assert(PageSwap(page));
-	ClearPageSwap(page);
-	list_del(&(page->page_link));
-}
-
-// swap_free_page - call swap_page_del&free_page to generate a free page
-static void swap_free_page(struct Page *page)
-{
-	assert(PageSwap(page) && page_ref(page) == 0);
-	swap_page_del(page);
-	free_page(page);
-}
-
-// swap_hash_find - find page according entry using swap hash list
-static struct Page *swap_hash_find(swap_entry_t entry)
-{
-	list_entry_t *list = hash_list + entry_hashfn(entry), *le = list;
-	while ((le = list_next(le)) != list) {
-		struct Page *page = le2page(le, page_link);
-		if (page->index == entry) {
-			return page;
-		}
-	}
-	return NULL;
-}
-
-// try_alloc_swap_entry - try to alloc a unused swap entry
-static swap_entry_t try_alloc_swap_entry(void)
-{
-	static size_t next = 1;
-	size_t empty = 0, zero = 0, end = next;
-	do {
-		switch (mem_map[next]) {
-		case SWAP_UNUSED:
-			empty = next;
-			break;
-		case 0:
-			if (zero == 0) {
-				zero = next;
-			}
-			break;
-		}
-		if (++next == max_swap_offset) {
-			next = 1;
-		}
-	} while (empty == 0 && next != end);
-
-	swap_entry_t entry = 0;
-	if (empty != 0) {
-		entry = (empty << 8);
-	} else if (zero != 0) {
-		entry = (zero << 8);
-		struct Page *page = swap_hash_find(entry);
-		assert(page != NULL && PageSwap(page));
-		swap_list_del(page);
-		if (page_ref(page) == 0) {
-			swap_free_page(page);
-		} else {
-			swap_page_del(page);
-		}
-		mem_map[zero] = SWAP_UNUSED;
-	}
-
-	static unsigned int failed_counter = 0;
-	if (entry == 0 && ((++failed_counter) % 0x1000) == 0) {
-		warn("swap: try_alloc_swap_entry: failed too many times.\n");
-	}
-	return entry;
-}
-
-// swap_remove_entry - call swap_list_del to remove page from swap hash list,
-//                   - and call swap_free_page to generate a free page 
-void swap_remove_entry(swap_entry_t entry)
-{
-	size_t offset = swap_offset(entry);
-	assert(mem_map[offset] > 0);
-	if (--mem_map[offset] == 0) {
-		struct Page *page = swap_hash_find(entry);
-		if (page != NULL) {
-			if (page_ref(page) != 0) {
-				return;
-			}
-			swap_list_del(page);
-			swap_free_page(page);
-		}
-		mem_map[offset] = SWAP_UNUSED;
-	}
-}
-
-// swap_page_count - get reference number of swap page frame
-int swap_page_count(struct Page *page)
-{
-	if (!PageSwap(page)) {
-		return 0;
-	}
-	size_t offset = swap_offset(page->index);
-	assert(mem_map[offset] >= 0);
-	return mem_map[offset];
-}
-
-// swap_duplicate - reference number of mem_map[offset] ++
-void swap_duplicate(swap_entry_t entry)
-{
-	size_t offset = swap_offset(entry);
-	assert(mem_map[offset] >= 0 && mem_map[offset] < MAX_SWAP_REF);
-	mem_map[offset]++;
+failed_free_page:
+    free_page(newpage);
+failed:
+    goto out;
 }
 
 // swap_in_page - swap in a content of a page frame from swap space to memory
 //              - set the PG_swap flag in this page and add this page to swap active list
 int swap_in_page(swap_entry_t entry, struct Page **pagep)
 {
-	if (pagep == NULL) {
-		return -E_INVAL;
-	}
-	size_t offset = swap_offset(entry);
-	assert(mem_map[offset] >= 0);
+    if (pagep == NULL) {
+        return -E_INVAL;
+    }
+    size_t offset = swap_offset(entry);
+    assert(mem_map[offset] >= 0);
 
-	int ret;
-	struct Page *page, *newpage;
-	if ((page = swap_hash_find(entry)) != NULL) {
-		goto found;
-	}
+    int ret;
+    struct Page *page, *newpage;
+    if ((page = swap_hash_find(entry)) != NULL) {
+        goto found;
+    }
 
-	newpage = alloc_page();
+    newpage = alloc_page();
 
-	down(&swap_in_sem);
-	if ((page = swap_hash_find(entry)) != NULL) {
-		if (newpage != NULL) {
-			free_page(newpage);
-		}
-		goto found_unlock;
-	}
-	if (newpage == NULL) {
-		ret = -E_NO_MEM;
-		goto failed_unlock;
-	}
-	page = newpage;
-	if (swapfs_read(entry, page) != 0) {
-		free_page(page);
-		ret = -E_SWAP_FAULT;
-		goto failed_unlock;
-	}
-	swap_page_add(page, entry);
-	swap_active_list_add(page);
+    down(&swap_in_sem);
+    if ((page = swap_hash_find(entry)) != NULL) {
+        if (newpage != NULL) {
+            free_page(newpage);
+        }
+        goto found_unlock;
+    }
+    if (newpage == NULL) {
+        ret = -E_NO_MEM;
+        goto failed_unlock;
+    }
+    page = newpage;
+    if (swapfs_read(entry, page) != 0) {
+        free_page(page);
+        ret = -E_SWAP_FAULT;
+        goto failed_unlock;
+    }
+    swap_page_add(page, entry);
+    swap_active_list_add(page);
 
 found_unlock:
-	up(&swap_in_sem);
+    up(&swap_in_sem);
 found:
-	*pagep = page;
-	return 0;
+    *pagep = page;
+    return 0;
 
 failed_unlock:
-	up(&swap_in_sem);
-	return ret;
+    up(&swap_in_sem);
+    return ret;
 }
 
-// swap_copy_entry - copy a content of swap out page frame to a new page
-//                 - set this new page PG_swap flag and add to swap active list
-int swap_copy_entry(swap_entry_t entry, swap_entry_t * store)
+
+// nur_swap_remove_entry - call nur_swap_list_del to remove page from swap hash list,
+//                   - and call swap_free_page to generate a free page 
+void nur_swap_remove_entry(swap_entry_t entry)
 {
-	if (store == NULL) {
-		return -E_INVAL;
-	}
-
-	int ret = -E_NO_MEM;
-	struct Page *page, *newpage;
-	swap_duplicate(entry);
-	if ((newpage = alloc_page()) == NULL) {
-		goto failed;
-	}
-	if ((ret = swap_in_page(entry, &page)) != 0) {
-		goto failed_free_page;
-	}
-	ret = -E_NO_MEM;
-	if (!swap_page_add(newpage, 0)) {
-		goto failed_free_page;
-	}
-	swap_active_list_add(newpage);
-	memcpy(page2kva(newpage), page2kva(page), PGSIZE);
-	*store = newpage->index;
-	ret = 0;
-out:
-	swap_remove_entry(entry);
-	return ret;
-
-failed_free_page:
-	free_page(newpage);
-failed:
-	goto out;
-}
-
-// try_free_swap_entry - if mem_map[offset] == 0 (no reference), then mem_map[offset] = SWAP_UNUSED
-static bool try_free_swap_entry(swap_entry_t entry)
-{
-	size_t offset = swap_offset(entry);
-	if (mem_map[offset] == 0) {
-		mem_map[offset] = SWAP_UNUSED;
-		return 1;
-	}
-	return 0;
+    size_t offset = swap_offset(entry);
+    assert(mem_map[offset] > 0);
+    if (--mem_map[offset] == 0) {
+        struct Page *page = swap_hash_find(entry);
+        if (page != NULL) {
+            if (page_ref(page) != 0) {
+                return;
+            }
+            nur_swap_list_del(page);
+            swap_free_page(page);
+        }
+        mem_map[offset] = SWAP_UNUSED;
+    }
 }
 
 // page_launder - try to move page to swap_active_list OR swap_inactive_list, 
@@ -479,7 +309,7 @@ int page_launder(void)
 		if (!(PageSwap(page) && !PageActive(page))) {
 			panic("inactive: wrong swap list.\n");
 		}
-		swap_list_del(page);
+		nur_swap_list_del(page);
 		if (page_ref(page) != 0) {
 			swap_active_list_add(page);
 			continue;
@@ -522,7 +352,7 @@ void refill_inactive_scan(void)
 			panic("active: wrong swap list.\n");
 		}
 		if (page_ref(page) == 0) {
-			swap_list_del(page);
+			nur_swap_list_del(page);
 			swap_inactive_list_add(page);
 		}
 	}
@@ -713,7 +543,7 @@ static void check_swap(void)
 	mem_map[1] = 1;
 	assert(try_alloc_swap_entry() == 0);
 
-	// set rp1, Swap, Active, add to hash_list, active_list
+	// set rp1, Swap, Active, add to swap_hash_list, active_list
 
 	swap_page_add(rp1, entry);
 	swap_active_list_add(rp1);
@@ -724,16 +554,16 @@ static void check_swap(void)
 	assert(swap_offset(entry) == 1);
 	assert(!PageSwap(rp1));
 
-	// check swap_remove_entry
+	// check nur_swap_remove_entry
 
 	assert(swap_hash_find(entry) == NULL);
 	mem_map[1] = 2;
-	swap_remove_entry(entry);
+	nur_swap_remove_entry(entry);
 	assert(mem_map[1] == 1);
 
 	swap_page_add(rp1, entry);
 	swap_inactive_list_add(rp1);
-	swap_remove_entry(entry);
+	nur_swap_remove_entry(entry);
 	assert(PageSwap(rp1));
 	assert(rp1->index == entry && mem_map[1] == 0);
 
@@ -763,7 +593,7 @@ static void check_swap(void)
 	page_ref_dec(rp1);
 
 	size_t count = nr_used_pages();
-	swap_remove_entry(entry);
+	nur_swap_remove_entry(entry);
 	assert(nr_inactive_pages == 0 && nr_used_pages() == count - 1);
 
 	// check swap_out_mm
@@ -910,16 +740,16 @@ static void check_swap(void)
 
 	// check copy entry
 
-	swap_remove_entry(entry);
+	nur_swap_remove_entry(entry);
 	ptep_unmap(ptep1);
 	assert(mem_map[1] == 1);
 
 	swap_entry_t store;
-	ret = swap_copy_entry(entry, &store);
+	ret = nur_swap_copy_entry(entry, &store);
 	assert(ret == -E_NO_MEM);
 	mem_map[2] = SWAP_UNUSED;
 
-	ret = swap_copy_entry(entry, &store);
+	ret = nur_swap_copy_entry(entry, &store);
 	assert(ret == 0 && swap_offset(store) == 2 && mem_map[2] == 0);
 	mem_map[2] = 1;
 	ptep_copy(ptep1, &store);
@@ -940,7 +770,7 @@ static void check_swap(void)
 
 	// free memory
 
-	swap_list_del(rp0), swap_list_del(rp1);
+	nur_swap_list_del(rp0), nur_swap_list_del(rp1);
 	swap_page_del(rp0), swap_page_del(rp1);
 
 	assert(page_ref(rp0) == 1 && page_ref(rp1) == 1);
@@ -949,7 +779,7 @@ static void check_swap(void)
 	       && list_empty(&(inactive_list.swap_list)));
 
 	for (i = 0; i < HASH_LIST_SIZE; i++) {
-		assert(list_empty(hash_list + i));
+		assert(list_empty(swap_hash_list + i));
 	}
 
 	page_remove(pgdir, TEST_PAGE);
@@ -978,5 +808,17 @@ static void check_swap(void)
 
 	kprintf("check_swap() succeeded.\n");
 }
+
+const struct swap_manager nur_swap_manager = {
+    .name = "not use recently",
+    .init = swap_init,
+    .init_mm = NULL,
+    .tick_event = kswapd_main,
+    .swap_remove_entry = nur_swap_remove_entry,
+    .swap_copy_entry = nur_swap_copy_entry,
+    .swap_list_del = nur_swap_list_del,
+    .swap_out_victim = try_free_pages,
+    .check_swap = check_swap,
+};
 
 #endif /* UCONFIG_SWAP */

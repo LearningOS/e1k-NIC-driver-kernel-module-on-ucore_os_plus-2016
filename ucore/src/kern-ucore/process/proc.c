@@ -17,7 +17,7 @@
 #include <fs.h>
 #include <vfs.h>
 #include <sysfile.h>
-#include <swap.h>
+#include <swap_manager.h>
 #include <mbox.h>
 #include <kio.h>
 #include <stdio.h>
@@ -26,6 +26,7 @@
 #include <sysconf.h>
 #include <refcache.h>
 #include <spinlock.h>
+#include <swap_manager.h>
 
 /* ------------- process/thread mechanism design&implementation -------------
 (an simplified Linux process/thread mechanism )
@@ -1962,7 +1963,7 @@ static int init_main(void *arg)
 {
 	int pid;
 #ifdef UCONFIG_SWAP
-	if ((pid = ucore_kernel_thread(kswapd_main, NULL, 0)) <= 0) {
+	if ((pid = ucore_kernel_thread(swap_tick_event, NULL, 0)) <= 0) {
 		panic("kswapd init failed.\n");
 	}
 	kswapd = find_proc(pid);
