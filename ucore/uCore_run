@@ -94,6 +94,7 @@ case $UCONFIG_ARCH in
         if [[ $TEST_MODE = y ]]; then
             EXTRA_OPT+=" -S -display none -gdb tcp::$GDB_PORT"
         else
+			echo $COMMAND_LINE_MODE
             if [[ $COMMAND_LINE_MODE = y ]]; then
                 echo -e "\033[0;36;1mNote: Qemu is running under no graphic mode. Press 'Ctrl-a x' to exit\033[0m"
                 EXTRA_OPT="-nographic"

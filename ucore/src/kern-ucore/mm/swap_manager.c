@@ -4,7 +4,7 @@
 #include <pmm.h>
 #include <vmm.h>
 
-const struct swap_manager * def_swap_manager;
+struct swap_manager * def_swap_manager =NULL;
 
 extern wait_queue_t kswapd_done;
 extern semaphore_t swap_in_sem;
@@ -45,21 +45,19 @@ void swap_remove_entry(swap_entry_t entry){
     def_swap_manager->swap_remove_entry(entry);
 }
 
+/*
 int swap_copy_entry(swap_entry_t entry, swap_entry_t* store){
     return def_swap_manager->swap_copy_entry(entry, store);
-}
+} */
 void kswapd_wakeup_all(void)
 {
-    kprintf("wakeup all\n");
     bool intr_flag;
     local_intr_save(intr_flag);
     {
-        kprintf("wakeup end\n");
         wakeup_queue(&kswapd_done, WT_KSWAPD, 1);
     }
     local_intr_restore(intr_flag);
 }
-
 
 // swap_page_count - get reference number of swap page frame
 int swap_page_count(struct Page *page)
@@ -192,6 +190,14 @@ bool try_free_swap_entry(swap_entry_t entry)
     return 0;
 }
 
+bool try_free_pages(size_t n){
+    if (def_swap_manager != NULL)
+        return def_swap_manager->swap_out_victim(n);
+    else
+        return 0;
+}
 
-//int swap_in_page(swap_entry_t entry, struct Page** pagep){}
+int swap_in_page(swap_entry_t entry, struct Page** pagep){
+    return def_swap_manager->swap_in_page(entry, pagep);
+}
 

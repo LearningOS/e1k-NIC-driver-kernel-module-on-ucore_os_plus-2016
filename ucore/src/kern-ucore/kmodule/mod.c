@@ -6,6 +6,7 @@
 #include <slab.h>
 #include <elf.h>
 #include <mmu.h>
+#include <pmm.h>
 #include <vmm.h>
 #include <vfs.h>
 #include <inode.h>
@@ -16,6 +17,9 @@
 #include <sem.h>
 #include <stdlib.h>
 #include <error.h>
+#include <proc.h>
+#include <sched.h>
+#include <swap_manager.h>
 
 #ifndef ARCH_SHF_SMALL
 #define ARCH_SHF_SMALL 0
@@ -72,7 +76,7 @@ static const struct kernel_symbol *resolve_symbol(struct secthdr *sechdrs,
 	const unsigned long *crc;
 	sym = find_symbol(name, &owner, &crc, 1);
 	if (sym) {
-		kprintf("\tresolve_symbol: symbol %s found\n", name);
+	//	kprintf("\tresolve_symbol: symbol %s found\n", name);
 		if (/*!check_version(sechdrs, versindex, name, mod, crc) ||*/
 		    !use_module(mod, owner))
 			sym = NULL;
@@ -333,8 +337,9 @@ static bool find_symbol_in_section(const struct symsearch *syms,
 	fsa->owner = owner;
 	fsa->crc = symversion(syms->crcs, symnum);
 	fsa->sym = &syms->start[symnum];
-	kprintf("\tfind_symbol_in_section: symbol %s matched\n",
+	/*kprintf("\tfind_symbol_in_section: symbol %s matched\n",
 		syms->start[symnum].name);
+		*/
 	return 1;
 }
 
@@ -1139,3 +1144,23 @@ EXPORT_SYMBOL(null_vop_inval);
 EXPORT_SYMBOL(stricmp);
 EXPORT_SYMBOL(iobuf_move);
 EXPORT_SYMBOL(null_vop_isdir);
+
+/* export function and variable for swap manager*/
+/* ucore kernel function or variable*/
+EXPORT_SYMBOL(proc_mm_list);
+EXPORT_SYMBOL(page_insert);
+EXPORT_SYMBOL(wait_queue_add);
+EXPORT_SYMBOL(wakeup_proc);
+EXPORT_SYMBOL(get_pud);
+EXPORT_SYMBOL(mm_create);
+EXPORT_SYMBOL(shmem_get_entry);
+EXPORT_SYMBOL(up);
+EXPORT_SYMBOL(mm_destroy);
+EXPORT_SYMBOL(memcpy);
+
+/*swap function or variable*/
+EXPORT_SYMBOL(swap_hash_find);
+EXPORT_SYMBOL(swap_page_add);
+EXPORT_SYMBOL(swap_page_del);
+EXPORT_SYMBOL(swap_free_page);
+EXPORT_SYMBOL(try_free_swap_entry);

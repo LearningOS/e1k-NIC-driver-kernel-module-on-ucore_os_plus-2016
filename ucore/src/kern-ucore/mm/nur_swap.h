@@ -14,8 +14,6 @@
  *           24 bits            7 bits    1 bit
  * */
 
-#define MAX_SWAP_OFFSET_LIMIT                   (1 << 24)
-
 extern size_t max_swap_offset;
 
 /* *
@@ -28,7 +26,7 @@ extern size_t max_swap_offset;
 
 //int kswapd_main(void *arg) __attribute__ ((noreturn));
 
-extern const struct swap_manager nur_swap_manager;
+extern  struct swap_manager nur_swap_manager;
 
 #endif /*  UCONFIG_SWAP  */
 

@@ -1,9 +1,7 @@
-#include <kio.h>
 #include <mod.h>
 #include <string.h>
 
 extern int (*add_func)(int x, int y);
-
 int add(int a, int b) {
     return a + b;
 }

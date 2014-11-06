@@ -1,10 +1,10 @@
-#ifndef  _KERN_MM_SWAP_MANAGER_H
-#define _KERN_MM_SWAP_MANAGER_H
+#ifndef SWAP_MANAGER_H
+#define SWAP_MANAGER_H
 
+#include "basic_lib.h"
 #include <types.h>
-#include <memlayout.h>
-#include <vmm.h>
-#include <proc.h>
+#include <sem.h>
+#include <list.h>
 
 unsigned short *mem_map;
 
@@ -17,6 +17,7 @@ unsigned short *mem_map;
 
 wait_queue_t kswapd_done;
 semaphore_t swap_in_sem;
+
 extern size_t max_swap_offset; 
  // function for swap method
 struct Page *swap_hash_find(swap_entry_t entry);
@@ -73,5 +74,4 @@ void swap_remove_entry(swap_entry_t);
 int swap_in_page(swap_entry_t, struct Page** pagep);
 
 extern struct swap_manager *  def_swap_manager;
-
 #endif

@@ -61,16 +61,16 @@ to process this exception:
    2 if the PTE is invalid && empty, it means ucore should call pgdir_alloc_page(vmm.c) to alloc a page frame PF for this ADDR, and 
      setup PTE to map the ADDR with the corresponding physical addr in this PF.
    3 if the PTE is invalid && not empty, it means the content of corresponding page frame for this ADDR is in the swap space(disk),
-     ucore should call swap_in_page to load the contents from the swap space to a free page frame PF, and call page_insert to setup 
+     ucore should call nur_swap_in_page to load the contents from the swap space to a free page frame PF, and call page_insert to setup 
      PTE to map the ADDR with the corresponding physical addr in this PF.
   
   If there are no free page frame, then ucore will find&replace some used page frame to swap out to swap space. The key function of 
 swap implementation is in kswapd_main(swap.c::proj11::lab3), and the steps are shown below:
   0 ucore first builds two page list (active_list & inactive_list) for active page(hot accessed) frames and inactive page frames
     (not accessed in currently past). ucore wants to evict inactive page frames to produce more free page frames.
-  1 try_free_pages(swap.c) will calculate pressure(swap.c) to estimate the number(pressure<<5) of needed page frames in ucore currently, 
+  1 nur_try_free_pages(swap.c) will calculate pressure(swap.c) to estimate the number(pressure<<5) of needed page frames in ucore currently, 
      then call kswapd kernel thread.
-  2 kswapd kernel thread (wake up by try_free_pages OR timer(sched.[ch]::proj10.4::lab3)) will call kswapd_main to evict N=pressure<<5 
+  2 kswapd kernel thread (wake up by nur_try_free_pages OR timer(sched.[ch]::proj10.4::lab3)) will call kswapd_main to evict N=pressure<<5 
     page frames.
     2.1 call swap_out_mm to try to evict N page frames in inactive page list from each process's mm struct.
     2.2 call page_launder & refill_inactive_scan to try to change some active page frames to inactive page frames and
@@ -156,15 +156,15 @@ void swap_init(void)
 	swap_init_ok = 1;
 }
 
-// try_free_pages - calculate pressure to estimate the number(pressure<<5) of needed page frames in ucore currently, 
+// nur_try_free_pages - calculate pressure to estimate the number(pressure<<5) of needed page frames in ucore currently, 
 //                - then call kswapd kernel thread.
-bool try_free_pages(size_t n)
+bool nur_try_free_pages(size_t n)
 {
 	if (!swap_init_ok || kswapd == NULL) {
 		return 0;
 	}
 	if (current == kswapd) {
-		panic("kswapd call try_free_pages!!.\n");
+		panic("kswapd call nur_try_free_pages!!.\n");
 	}
 	if (n >= (1 << 7)) {
 		return 0;
@@ -207,7 +207,7 @@ int nur_swap_copy_entry(swap_entry_t entry, swap_entry_t * store)
     if ((newpage = alloc_page()) == NULL) {
         goto failed;
     }
-    if ((ret = swap_in_page(entry, &page)) != 0) {
+    if ((ret = nur_swap_in_page(entry, &page)) != 0) {
         goto failed_free_page;
     }
     ret = -E_NO_MEM;
@@ -228,9 +228,9 @@ failed:
     goto out;
 }
 
-// swap_in_page - swap in a content of a page frame from swap space to memory
+// nur_swap_in_page - swap in a content of a page frame from swap space to memory
 //              - set the PG_swap flag in this page and add this page to swap active list
-int swap_in_page(swap_entry_t entry, struct Page **pagep)
+int nur_swap_in_page(swap_entry_t entry, struct Page **pagep)
 {
     if (pagep == NULL) {
         return -E_INVAL;
@@ -762,9 +762,9 @@ static void check_swap(void)
 	assert(*(char *)TEST_PAGE == (char)0xEE
 	       && *(char *)(TEST_PAGE + 1) == (char)0x88);
 
-	ret = swap_in_page(entry, &rp0);
+	ret = nur_swap_in_page(entry, &rp0);
 	assert(ret == 0);
-	ret = swap_in_page(store, &rp1);
+	ret = nur_swap_in_page(store, &rp1);
 	assert(ret == 0);
 	assert(rp1 != rp0);
 
@@ -809,15 +809,15 @@ static void check_swap(void)
 	kprintf("check_swap() succeeded.\n");
 }
 
-const struct swap_manager nur_swap_manager = {
+struct swap_manager nur_swap_manager = {
     .name = "not use recently",
     .init = swap_init,
     .init_mm = NULL,
     .tick_event = kswapd_main,
     .swap_remove_entry = nur_swap_remove_entry,
-    .swap_copy_entry = nur_swap_copy_entry,
     .swap_list_del = nur_swap_list_del,
-    .swap_out_victim = try_free_pages,
+    .swap_in_page = nur_swap_in_page,
+    .swap_out_victim = nur_try_free_pages,
     .check_swap = check_swap,
 };
 
