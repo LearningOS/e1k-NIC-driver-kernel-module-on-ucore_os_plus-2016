@@ -20,6 +20,7 @@
 #include <proc.h>
 #include <sched.h>
 #include <swap_manager.h>
+#include <swapfs.h>
 
 #ifndef ARCH_SHF_SMALL
 #define ARCH_SHF_SMALL 0
@@ -1157,6 +1158,31 @@ EXPORT_SYMBOL(shmem_get_entry);
 EXPORT_SYMBOL(up);
 EXPORT_SYMBOL(mm_destroy);
 EXPORT_SYMBOL(memcpy);
+EXPORT_SYMBOL(free_pages);
+EXPORT_SYMBOL(schedule);
+EXPORT_SYMBOL(find_vma);
+EXPORT_SYMBOL(npage);
+EXPORT_SYMBOL(__percpu_cpus);
+EXPORT_SYMBOL(boot_pgdir);
+EXPORT_SYMBOL(intr_enable);
+EXPORT_SYMBOL(down);
+EXPORT_SYMBOL(do_sleep);
+EXPORT_SYMBOL(get_pgd);
+EXPORT_SYMBOL(percpu_offsets);
+EXPORT_SYMBOL(__percpu_start);
+EXPORT_SYMBOL(slab_allocated);
+EXPORT_SYMBOL(intr_disable);
+EXPORT_SYMBOL(wait_init);
+EXPORT_SYMBOL(wait_in_queue);
+EXPORT_SYMBOL(shmem_insert_entry);
+EXPORT_SYMBOL(swapfs_read);
+EXPORT_SYMBOL(get_pte);
+EXPORT_SYMBOL(page_remove);
+EXPORT_SYMBOL(insert_vma_struct);
+EXPORT_SYMBOL(alloc_pages);
+EXPORT_SYMBOL(get_pmd);
+EXPORT_SYMBOL(vma_create);
+EXPORT_SYMBOL(list_del);
 
 /*swap function or variable*/
 EXPORT_SYMBOL(swap_hash_find);
@@ -1164,3 +1190,10 @@ EXPORT_SYMBOL(swap_page_add);
 EXPORT_SYMBOL(swap_page_del);
 EXPORT_SYMBOL(swap_free_page);
 EXPORT_SYMBOL(try_free_swap_entry);
+EXPORT_SYMBOL(def_swap_manager);
+EXPORT_SYMBOL(try_alloc_swap_entry);
+EXPORT_SYMBOL(kswapd_done);
+EXPORT_SYMBOL(max_swap_offset);
+EXPORT_SYMBOL(kswapd_wakeup_all);
+EXPORT_SYMBOL(swap_hash_list);
+EXPORT_SYMBOL(mem_map);

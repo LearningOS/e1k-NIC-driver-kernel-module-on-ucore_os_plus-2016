@@ -489,10 +489,10 @@ int kswapd_main(void *arg)
 			}
 			continue;
 		}
-		pressure = 0, guard = 0;
-		kswapd_wakeup_all();
-		do_sleep(1000);
+                          break;
 	}
+            pressure = 0, guard = 0;
+            kswapd_wakeup_all();
 }
 
 // check_swap - check the correctness of swap & page replacement algorithm

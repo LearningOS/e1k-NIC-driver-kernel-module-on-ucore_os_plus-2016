@@ -6,8 +6,9 @@
 
 struct swap_manager * def_swap_manager =NULL;
 
-extern wait_queue_t kswapd_done;
-extern semaphore_t swap_in_sem;
+wait_queue_t kswapd_done;
+semaphore_t swap_in_sem;
+unsigned short *mem_map;
 
 void swap_manager_init(void){
     swapfs_init();
@@ -38,7 +39,10 @@ void swap_manager_init(void){
 }
 
 void swap_tick_event(void *arg){
-        def_swap_manager->tick_event(arg);
+        while(1){
+            def_swap_manager->tick_event(arg);
+            do_sleep(1000);
+        }
 }
 
 void swap_remove_entry(swap_entry_t entry){

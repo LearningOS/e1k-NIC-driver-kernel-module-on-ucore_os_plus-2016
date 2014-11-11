@@ -6,7 +6,7 @@
 #include <vmm.h>
 #include <proc.h>
 
-unsigned short *mem_map;
+extern unsigned short *mem_map;
 
 #define SWAP_UNUSED                     0xFFFF
 #define MAX_SWAP_REF                    0xFFFE
@@ -15,8 +15,8 @@ unsigned short *mem_map;
 #define HASH_LIST_SIZE                  (1 << HASH_SHIFT)
 #define entry_hashfn(x)                 (hash32(x, HASH_SHIFT))
 
-wait_queue_t kswapd_done;
-semaphore_t swap_in_sem;
+extern wait_queue_t kswapd_done;
+extern semaphore_t swap_in_sem;
 extern size_t max_swap_offset; 
  // function for swap method
 struct Page *swap_hash_find(swap_entry_t entry);
