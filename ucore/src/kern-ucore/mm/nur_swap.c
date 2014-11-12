@@ -354,7 +354,7 @@ void refill_inactive_scan(void)
 		if (page_ref(page) == 0) {
 			nur_swap_list_del(page);
 			swap_inactive_list_add(page);
-		}
+		} 
 	}
 }
 
@@ -492,6 +492,7 @@ int kswapd_main(void *arg)
                           break;
 	}
             pressure = 0, guard = 0;
+            kprintf("nur swap succeeded\n");
             kswapd_wakeup_all();
 }
 

@@ -3,6 +3,7 @@
 #include <mod.h>
 
 #include "fifo_swap.h"
+#include <swap_manager.h>
 
 extern struct swap_manager *  def_swap_manager;
 extern struct swap_manager  fifo_swap_manager;
@@ -10,6 +11,7 @@ static __init int swap_init() {
     kprintf("the postion of swap manager is: %d \n", def_swap_manager);
     kprintf("checkout to fifo swap manager\n");
     def_swap_manager = &(fifo_swap_manager);
+    def_swap_manager->init();
     return 0;
 }
 	

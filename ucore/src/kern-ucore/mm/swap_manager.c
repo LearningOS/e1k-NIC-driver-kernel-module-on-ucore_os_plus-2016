@@ -3,6 +3,7 @@
 #include <error.h>
 #include <pmm.h>
 #include <vmm.h>
+#include <proc.h>
 
 struct swap_manager * def_swap_manager =NULL;
 
@@ -137,8 +138,6 @@ void swap_free_page(struct Page *page)
     free_page(page);
 }
 
-
-
 // try_alloc_swap_entry - try to alloc a unused swap entry
 swap_entry_t try_alloc_swap_entry(void)
 {
@@ -195,6 +194,7 @@ bool try_free_swap_entry(swap_entry_t entry)
 }
 
 bool try_free_pages(size_t n){
+    kprintf("try free pages:%d\n", n);
     if (def_swap_manager != NULL)
         return def_swap_manager->swap_out_victim(n);
     else
@@ -205,3 +205,17 @@ int swap_in_page(swap_entry_t entry, struct Page** pagep){
     return def_swap_manager->swap_in_page(entry, pagep);
 }
 
+void def_check_swap(){
+    /*
+    assert(kloopd->mm != NULL);
+    assert(!list_empty(&(kloopd->mm->mmap_list)));
+    struct mm_struct *mm = kloopd->mm;
+    struct vma_struct *vma = le2vma(list_next(&(mm->mmap_list)), list_link);
+    int i;
+    kprintf("======= kloopd vma ==========\n");
+    for (i=0; i<mm->map_count; i++){
+        kprintf("  start:%x \t end:%x \n", vma->vm_start, vma->vm_end);
+        vma = le2vma(list_next(&(vma->list_link)), list_link);
+    } */
+   def_swap_manager->check_swap();
+}

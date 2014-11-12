@@ -1958,10 +1958,43 @@ static int user_main(void *arg)
 	kprintf("user_main execve failed, no /bin/sh?.\n");
 }
 
+static int sleep_main(void *arg){
+	__KERNEL_EXECVE("/bin/sleep", "bin/sleep");
+}
+struct proc_struct * kloopd = NULL;
+/*
+
+static int kernel_loop(void *arg){
+	if (kloopd->mm == NULL){
+		kloopd->mm = mm_create();
+		kloopd->mm->pgdir = init_pgdir_get();
+		list_add(&(proc_mm_list), &(kloopd->mm->proc_mm_link));
+	}
+	unsigned int current_va = 0x1000;
+	struct vma_struct* vma = vma_create(current_va, current_va + PGSIZE*100, VM_WRITE|VM_READ);
+	insert_vma_struct(kloopd->mm, vma);
+	int i=0;
+	while (i++ < 100){
+		*(unsigned char*)current_va = 'a';
+		current_va += PGSIZE;
+	}
+	while(1){
+		do_sleep(100);
+	}
+}
+*/
+
 // init_main - the second kernel thread used to create kswapd_main & user_main kernel threads
 static int init_main(void *arg)
 {
 	int pid;
+/*	if ((pid = ucore_kernel_thread(kernel_loop, NULL, 0)) <= 0){
+		panic("kloopd init failed\n");
+	}
+	kloopd = find_proc(pid);
+	set_proc_name(kloopd, "kloopd");
+*/
+
 #ifdef UCONFIG_SWAP
 	if ((pid = ucore_kernel_thread(swap_tick_event, NULL, 0)) <= 0) {
 		panic("kswapd init failed.\n");
@@ -1988,7 +2021,20 @@ static int init_main(void *arg)
 		panic("create user_main failed.\n");
 	}
 
-	while (do_wait(0, NULL) == 0) {
+	pid = ucore_kernel_thread(sleep_main, NULL, 0);
+	kloopd = find_proc(pid);
+	set_proc_name(kloopd, "sleep");
+/*
+	struct mm_struct* mm = kloopd->mm;
+	assert(!list_empty(&(mm->mmap_list)));
+	struct vma_struct* vma = le2vma(list_next(&(mm->mmap_list)), list_link);
+	int j;
+	kprintf("======= kloopd vma ====== \n");
+	for (j=0; j<mm->map_count; j++){
+		kprintf("\tstart: %d,  end: %d", vma->vm_start, vma->vm_end);
+		vma = le2vma(list_next(&(vma->list_link)), list_link);
+	}
+*/	while (do_wait(0, NULL) == 0) {
 		if (nr_process_store == nr_process) {
 			break;
 		}

@@ -71,7 +71,7 @@ void swap_duplicate(swap_entry_t entry);
 void swap_remove_entry(swap_entry_t);
 //int swap_copy_entry(swap_entry_t, swap_entry_t*);    
 int swap_in_page(swap_entry_t, struct Page** pagep);
-
+void def_check_swap();
 extern struct swap_manager *  def_swap_manager;
 
 #endif
