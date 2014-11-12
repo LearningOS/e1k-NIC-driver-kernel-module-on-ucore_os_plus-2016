@@ -13,10 +13,10 @@ int main(int argc, char** argv){
     }
 
     int ptr = current_ptr;
-    sleep(1000);
+    sleep(2000);
     while(1){
         printf("I am a sleep user proc\n");
-        sleep(50);
+        sleep(100);
        /* printf("write 'a' to addr: 0xaff15000 \n");
         *(unsigned char* )ptr = 'a';
         printf("write 'a' to addr: 0xaff15010 \n");

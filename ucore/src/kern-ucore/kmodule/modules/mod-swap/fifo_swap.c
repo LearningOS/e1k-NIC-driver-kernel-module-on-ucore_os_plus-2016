@@ -174,16 +174,6 @@ void fifo_tick_event(){
 }
 
 void fifo_init(){
-    size_t offset;
-    for (offset = 0; offset < max_swap_offset; offset++) {
-        mem_map[offset] = SWAP_UNUSED;
-    }
-
-    int i;
-    for (i = 0; i < HASH_LIST_SIZE; i++) {
-        list_init(swap_hash_list + i);
-    }
-
     def_check_swap();
     swap_init_ok = 1;
 }
