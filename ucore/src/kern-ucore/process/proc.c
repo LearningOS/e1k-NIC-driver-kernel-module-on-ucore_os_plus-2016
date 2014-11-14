@@ -2021,9 +2021,9 @@ static int init_main(void *arg)
 		panic("create user_main failed.\n");
 	}
 
-	pid = ucore_kernel_thread(sleep_main, NULL, 0);
+/*	pid = ucore_kernel_thread(sleep_main, NULL, 0);
 	kloopd = find_proc(pid);
-	set_proc_name(kloopd, "sleep");
+	set_proc_name(kloopd, "sleep"); */
 /*
 	struct mm_struct* mm = kloopd->mm;
 	assert(!list_empty(&(mm->mmap_list)));

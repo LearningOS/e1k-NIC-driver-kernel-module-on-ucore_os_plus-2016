@@ -54,7 +54,7 @@ struct swap_manager
     /*delete page from swap list*/
     void (*swap_list_del)(struct Page*);
     /* Try to swap out a page, return then victim */
-    int (*swap_out_victim) (size_t n);
+    bool (*swap_out_victim) (size_t n);
     /* check the page relpacement algorithm */
     int (*check_swap)(void);
     /* swap in page from swap space*/

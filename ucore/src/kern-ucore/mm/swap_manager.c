@@ -10,6 +10,7 @@ struct swap_manager * def_swap_manager =NULL;
 wait_queue_t kswapd_done;
 semaphore_t swap_in_sem;
 unsigned short *mem_map;
+int swap_time;
 
 void swap_manager_init(void){
     swapfs_init();
@@ -35,6 +36,7 @@ void swap_manager_init(void){
         list_init(swap_hash_list + i);
     }
 
+    swap_time = 0;
     def_swap_manager->init();
     def_swap_manager->check_swap();
 }
@@ -42,6 +44,7 @@ void swap_manager_init(void){
 void swap_tick_event(void *arg){
         while(1){
             def_swap_manager->tick_event(arg);
+            kprintf("swap page:%d\n", swap_time);
             do_sleep(1000);
         }
 }
@@ -79,7 +82,16 @@ int swap_page_count(struct Page *page)
 void swap_duplicate(swap_entry_t entry)
 {
     size_t offset = swap_offset(entry);
-    assert(mem_map[offset] >= 0 && mem_map[offset] < MAX_SWAP_REF);
+    assert(mem_map[offset] >= 0);
+    if (mem_map[offset] >= MAX_SWAP_REF){
+        int i;
+        for (i=0; i<max_swap_offset; i++){
+            if (mem_map[i] < MAX_SWAP_REF){
+                kprintf("find %d mem_map= 0x%x\n", i, mem_map[i]);
+            }
+        }
+    }
+    assert(mem_map[offset] < MAX_SWAP_REF);
     mem_map[offset]++;
 }
 
@@ -194,7 +206,7 @@ bool try_free_swap_entry(swap_entry_t entry)
 }
 
 bool try_free_pages(size_t n){
-    kprintf("try free pages:%d\n", n);
+    swap_time += n;
     if (def_swap_manager != NULL)
         return def_swap_manager->swap_out_victim(n);
     else

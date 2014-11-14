@@ -7,15 +7,20 @@
 
 extern struct swap_manager *  def_swap_manager;
 extern struct swap_manager  fifo_swap_manager;
+static struct swap_manager* tmp_swap_manager;
 static __init int swap_init() {
     kprintf("the postion of swap manager is: %d \n", def_swap_manager);
     kprintf("checkout to fifo swap manager\n");
+    tmp_swap_manager = def_swap_manager;
     def_swap_manager = &(fifo_swap_manager);
     def_swap_manager->init();
     return 0;
 }
 	
 static __exit void swap_exit() {
+    def_swap_manager = tmp_swap_manager;
+    def_swap_manager->init();
+    kprintf("exit fifo swap; checkout to nur swap method\n");
     kprintf("swap_exit: Goodbye, cruel world.\n");
 }
 	

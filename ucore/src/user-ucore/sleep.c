@@ -13,9 +13,10 @@ int main(int argc, char** argv){
     }
 
     int ptr = current_ptr;
-    sleep(2000);
-    while(1){
-        printf("I am a sleep user proc\n");
+    sleep(1000);
+    i = 0;
+    while(i++ < 7){
+        printf("I am going to alloc 1Mb memory\n");
         sleep(100);
        /* printf("write 'a' to addr: 0xaff15000 \n");
         *(unsigned char* )ptr = 'a';
@@ -31,5 +32,9 @@ int main(int argc, char** argv){
         *(unsigned char* )(ptr + 0x2010) = 'a'; */
         char * addr = malloc(0x1000000);
         memset(addr, 0, 0x1000000);   
+    }
+    while(1){
+        printf("I am sleeping now\n$ ");
+        sleep(2000);
     }
 }

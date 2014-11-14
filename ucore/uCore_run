@@ -105,7 +105,7 @@ case $UCONFIG_ARCH in
                 EXTRA_OPT+=" -s -S"
             fi
         fi
-        exec $QEMU -m 128 \
+        exec $QEMU -m 3 \
             -hda $BUILD_DIR/kernel.img$TEST_POSTFIX \
 			-drive file=$BUILD_DIR/swap.img$TEST_POSTFIX,media=disk,cache=writeback,index=1 \
             -drive file=$BUILD_DIR/sfs.img$TEST_POSTFIX,media=disk,cache=writeback,index=2 \

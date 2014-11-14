@@ -95,7 +95,6 @@ int swap_out_vma(struct mm_struct* mm, struct vma_struct* vma, uintptr_t addr, i
                         }
                     }
                     if (page_ref(page) == 0){  
-                       kprintf("page refence == 0, this page will be swap out\n");
                        swap_duplicate(entry);
                        if (swapfs_write(entry, page) !=0){
                             mem_map[swap_offset(entry)]--;
@@ -139,12 +138,11 @@ int swap_out_mm(struct mm_struct* mm, int needs){
             break;
         }
         addr = current_vma->vm_start;
-    }
+    }   
     return free_count;
 }
 
 void fifo_tick_event(){
-    kprintf("fifo tick event\n");
     while(1){
         int guard = 0;
         if (pressure > 0){
@@ -169,7 +167,6 @@ void fifo_tick_event(){
         break;
     }    
     pressure = 0;
-    kprintf("fifo swap successed\n");
     kswapd_wakeup_all();
 }
 
@@ -199,14 +196,14 @@ void fifo_swap_remove_entry(swap_entry_t entry){
     }
 }
 
-int fifo_swap_out(int needs){
+bool fifo_swap_out(int needs){
     if (!swap_init_ok || kswapd == NULL){
         return 0;
     }
     if (current == kswapd){
         panic("kswapd call try free pages");
     }
-    pressure += needs;
+    pressure += needs << 5;
     wait_t __wait, *wait = &__wait;
 
     bool intr_flag;
@@ -230,7 +227,7 @@ void fifo_check_swap(){
     kprintf("I am fifo check_swap \n");
 
     struct mm_struct * mm = mm_create();
-    pgd_t* pgdir = mm->pgdir = init_pgdir_get();
+    pgd_t* pgdir = mm->pgdir = alloc_page();
     struct vma_struct *vma=
         vma_create(TEST_PAGE, TEST_PAGE+PTSIZE, VM_WRITE|VM_READ);
 
@@ -263,13 +260,8 @@ void fifo_check_swap(){
     kprintf("swap in successed\n");
 
     swap_free_page(newpage);
-    mm->pgdir = NULL;
     mm_destroy(mm);
-    size_t offset;
-    for (offset = 0; offset < max_swap_offset; offset++) {
-        mem_map[offset] = SWAP_UNUSED;
-    }
-
+    
     kprintf("fifo check_swap successed\n");
 }
 struct swap_manager fifo_swap_manager = {

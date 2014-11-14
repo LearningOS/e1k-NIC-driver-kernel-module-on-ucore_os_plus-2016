@@ -150,9 +150,6 @@ void swap_init(void)
 {
 	swap_list_init(&active_list);
 	swap_list_init(&inactive_list);
-	
-	//check_mm_swap();
-	check_mm_shm_swap();
 	swap_init_ok = 1;
 }
 
@@ -492,7 +489,6 @@ int kswapd_main(void *arg)
                           break;
 	}
             pressure = 0, guard = 0;
-            kprintf("nur swap succeeded\n");
             kswapd_wakeup_all();
 }
 
