@@ -5,6 +5,7 @@
 #include <vmm.h>
 #include <proc.h>
 
+#ifdef UCONFIG_SWAP
 struct swap_manager * def_swap_manager =NULL;
 
 wait_queue_t kswapd_done;
@@ -231,3 +232,5 @@ void def_check_swap(){
     } */
    def_swap_manager->check_swap();
 }
+
+#endif /* UCONFIG_SWAP */

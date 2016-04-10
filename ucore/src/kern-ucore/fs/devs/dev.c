@@ -171,7 +171,9 @@ void dev_init(void)
 	init_device(disk0);
 	/* for Nand flash */
 	init_device(disk1);
+#ifdef UCONFIG_HAVE_FATFS
 	init_device(disk2);
+#endif
 	//init_device(mmc0);
 }
 

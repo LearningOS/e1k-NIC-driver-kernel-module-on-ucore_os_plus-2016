@@ -824,7 +824,7 @@ static noinline struct module *load_module(void __user * umod,
 	   kprintf("load_module: bad vermagic\n");
 	   goto free_hdr;
 	   } else if (!same_magic(modmagic, vermagic, versindex)) {
-	   ; 
+	   ;
 	   // TODO: module magic is left for future use.
 	   }
 	 */
@@ -1190,6 +1190,7 @@ EXPORT_SYMBOL(page_ref);
 EXPORT_SYMBOL(page2kva);
 
 /*swap function or variable*/
+#ifdef UCONFIG_SWAP
 EXPORT_SYMBOL(swap_hash_find);
 EXPORT_SYMBOL(swap_page_add);
 EXPORT_SYMBOL(swap_page_del);
@@ -1209,3 +1210,4 @@ EXPORT_SYMBOL(def_check_swap);
 EXPORT_SYMBOL(swap_in_sem);
 EXPORT_SYMBOL(kswapd);
 EXPORT_SYMBOL(swap_in_page);
+#endif /* UCONFIG_SWAP */
