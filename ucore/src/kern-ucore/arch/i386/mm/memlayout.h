@@ -67,7 +67,7 @@
  * */
 
 // for RAMDISK
-#define DISK_FS_VBASE             0xB0000000
+//#define DISK_FS_VBASE             0xB0000000
 /* All physical memory mapped at this address */
 #define KERNBASE            0xC0000000
 #define PBASE				KERNBASE

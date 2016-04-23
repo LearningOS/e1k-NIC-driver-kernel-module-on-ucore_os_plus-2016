@@ -12,8 +12,8 @@
 #include <proc.h>
 #include <kio.h>
 #include <mp.h>
-#include <ramdisk.h>
-
+/*#include <ramdisk.h>
+*/
 /* *
  * Task State Segment:
  *
@@ -311,6 +311,73 @@ boot_map_segment(pde_t * pgdir, uintptr_t la, size_t size, uintptr_t pa,
 
 //pmm_init - setup a pmm to manage physical memory, build PDT&PT to setup paging mechanism 
 //         - check the correctness of pmm & paging mechanism, print PDT&PT
+//void pmm_init(void)
+//{
+//	//We need to alloc/free the physical memory (granularity is 4KB or other size). 
+//	//So a framework of physical memory manager (struct pmm_manager)is defined in pmm.h
+//	//First we should init a physical memory manager(pmm) based on the framework.
+//	//Then pmm can alloc/free the physical memory. 
+//	//Now the first_fit/best_fit/worst_fit/buddy_system pmm are available.
+//	init_pmm_manager();
+
+//	// detect physical memory space, reserve already used memory,
+//	// then use pmm->init_memmap to create free page list
+//	page_init();
+
+//	//use pmm->check to verify the correctness of the alloc/free function in a pmm
+//	check_alloc_page();
+
+//	// create boot_pgdir, an initial page directory(Page Directory Table, PDT)
+//	boot_pgdir = boot_alloc_page();
+//	memset(boot_pgdir, 0, PGSIZE);
+//	boot_cr3 = PADDR(boot_pgdir);
+
+//	check_pgdir();
+
+//	static_assert(KERNBASE % PTSIZE == 0 && KERNTOP % PTSIZE == 0);
+
+//	// recursively insert boot_pgdir in itself
+//	// to form a virtual page table at virtual address VPT
+//	boot_pgdir[PDX(VPT)] = PADDR(boot_pgdir) | PTE_P | PTE_W;
+
+//	// map all physical memory to linear memory with base linear addr KERNBASE
+//	//linear_addr KERNBASE~KERNBASE+KMEMSIZE = phy_addr 0~KMEMSIZE
+//	//But shouldn't use this map until enable_paging() & gdt_init() finished.
+//	boot_map_segment(boot_pgdir, KERNBASE, KMEMSIZE, 0, PTE_W);
+
+//    boot_map_segment(boot_pgdir, DISK_FS_VBASE,
+//            ROUNDUP(initrd_end - initrd_begin, PGSIZE),
+//            (uintptr_t) PADDR(initrd_begin), PTE_W);
+
+//	//temporary map: 
+//	//virtual_addr 3G~3G+4M = linear_addr 0~4M = linear_addr 3G~3G+4M = phy_addr 0~4M   
+//    int i;
+//    for (i = 0; i < 65; i++)
+//        boot_pgdir[i] = boot_pgdir[PDX(KERNBASE) + i];
+
+//	enable_paging();
+
+//	//reload gdt(third time,the last time) to map all physical memory
+//	//virtual_addr 0~4G=liear_addr 0~4G
+//	//then set kernel stack(ss:esp) in TSS, setup TSS in gdt, load TSS
+//	gdt_init();
+
+//	//disable the map of virtual_addr 0~4M
+//    i = 0;
+//    for (i = 0; i < 65; i++)
+//        boot_pgdir[i] = 0;
+
+//	//now the basic virtual memory map(see memalyout.h) is established.
+//	//check the correctness of the basic virtual memory map.
+//	check_boot_pgdir();
+
+//	print_pgdir(kprintf);
+
+//	slab_init();
+//}
+
+//pmm_init - setup a pmm to manage physical memory, build PDT&PT to setup paging mechanism 
+//         - check the correctness of pmm & paging mechanism, print PDT&PT
 void pmm_init(void)
 {
 	//We need to alloc/free the physical memory (granularity is 4KB or other size). 
@@ -345,15 +412,10 @@ void pmm_init(void)
 	//But shouldn't use this map until enable_paging() & gdt_init() finished.
 	boot_map_segment(boot_pgdir, KERNBASE, KMEMSIZE, 0, PTE_W);
 
-    boot_map_segment(boot_pgdir, DISK_FS_VBASE,
-            ROUNDUP(initrd_end - initrd_begin, PGSIZE),
-            (uintptr_t) PADDR(initrd_begin), PTE_W);
-
 	//temporary map: 
 	//virtual_addr 3G~3G+4M = linear_addr 0~4M = linear_addr 3G~3G+4M = phy_addr 0~4M   
-    int i;
-    for (i = 0; i < 65; i++)
-        boot_pgdir[i] = boot_pgdir[PDX(KERNBASE) + i];
+	boot_pgdir[0] = boot_pgdir[PDX(KERNBASE)];
+	boot_pgdir[1] = boot_pgdir[PDX(KERNBASE) + 1];
 
 	enable_paging();
 
@@ -363,9 +425,7 @@ void pmm_init(void)
 	gdt_init();
 
 	//disable the map of virtual_addr 0~4M
-    i = 0;
-    for (i = 0; i < 65; i++)
-        boot_pgdir[i] = 0;
+	boot_pgdir[0] = boot_pgdir[1] = 0;
 
 	//now the basic virtual memory map(see memalyout.h) is established.
 	//check the correctness of the basic virtual memory map.

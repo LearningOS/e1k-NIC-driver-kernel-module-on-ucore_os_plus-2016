@@ -49,15 +49,18 @@ int kern_init(void)
 	proc_init();		// init process table
 	sync_init();		// init sync struct
 
-	// ide_init();		// init ide devices
-    check_initrd();
-    ramdisk_init();
+	//ide_init();		// init ide devices
+	ide_init();
+    //check_initrd();
+    //ramdisk_init();
 #ifdef UCONFIG_SWAP
 	swap_init();		// init swap
 #endif
 	fs_init();		// init fs
 
 	//clock_init();		// init clock interrupt
+	clock_init();		// init clock interrupt
+
 	mod_init();
 
     pci_init();
@@ -68,7 +71,7 @@ int kern_init(void)
     ioapicenable(IRQ_COM1, 0);
 
     enable_e1000();
-    //test_transmission();
+    test_transmission();
 
     init_lwip_dev();
 	/* do nothing */
