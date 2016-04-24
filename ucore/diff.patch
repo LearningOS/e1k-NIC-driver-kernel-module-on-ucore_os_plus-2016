@@ -1,0 +1,2 @@
+106a107
+> 		EXTRA_OPT+=" -net nic,macaddr=`source genmac.sh` -net tap,ifname=tap0,script=qemu-ifup,downscript=qemu-ifdown"

@@ -103,7 +103,8 @@ case $UCONFIG_ARCH in
             if [[ $DEBUG_MODE = y ]]; then
                 EXTRA_OPT+=" -s -S"
             fi
-        fi
+        fi 	
+		EXTRA_OPT+=" -net nic,macaddr=`source genmac.sh` -net tap,ifname=tap0,script=qemu-ifup,downscript=qemu-ifdown"
         exec $QEMU -m 128 \
             -hda $BUILD_DIR/kernel.img$TEST_POSTFIX \
             -drive file=$BUILD_DIR/sfs.img$TEST_POSTFIX,media=disk,cache=writeback,index=2 \
