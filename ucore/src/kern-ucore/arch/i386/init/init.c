@@ -16,6 +16,7 @@
 #include <sched.h>
 #include <kio.h>
 #include <mp.h>
+#include <syscall.h>
 #include <mod.h>
 
 int kern_init(void) __attribute__ ((noreturn));
@@ -45,6 +46,7 @@ int kern_init(void)
     ioapic_init();
 
 	vmm_init();		// init virtual memory management
+  vmm_init_pgflt();
 	sched_init();		// init scheduler
 	proc_init();		// init process table
 	sync_init();		// init sync struct
@@ -60,9 +62,9 @@ int kern_init(void)
 
 	//clock_init();		// init clock interrupt
 	clock_init();		// init clock interrupt
-
 	mod_init();
 
+  syscall_init();
     pci_init();
 
 	intr_enable();		// enable irq interrupt

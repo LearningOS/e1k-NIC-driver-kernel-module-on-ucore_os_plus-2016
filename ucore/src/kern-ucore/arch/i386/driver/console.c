@@ -81,6 +81,14 @@ static void cga_init(void)
 	crt_pos = pos;
 }
 
+int inout_handler(int irq, void* data) {
+  char c = cons_getc();
+  extern void dev_stdin_write(char c);
+  dev_stdin_write(c);
+  lapiceoi();
+  return 0;
+}
+
 static bool serial_exists = 0;
 
 static void serial_init(void)
@@ -109,6 +117,7 @@ static void serial_init(void)
 
 	if (serial_exists) {
 		pic_enable(IRQ_COM1);
+    register_irq(I_COM1, inout_handler, NULL);
 		ioapicenable(IRQ_COM1, 0);
 	}
 }
@@ -408,6 +417,7 @@ static void kbd_init(void)
 	// drain the kbd buffer
 	kbd_intr();
 	pic_enable(IRQ_KBD);
+  register_irq(I_KBD, inout_handler, NULL);
     ioapicenable(IRQ_KBD, 0);
 }
 

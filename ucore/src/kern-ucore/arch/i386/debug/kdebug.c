@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <kio.h>
 #include <mp.h>
+#include <picirq.h>
 
 #define STACKFRAME_DEPTH 20
 
@@ -438,6 +439,12 @@ static const char *BreakLengthDescription[] = {
 // mark if local_dr, status_dr and contorl_dr are valid
 static bool is_dr_saved = 0;
 
+int debug_monitor_handler(int irq, void* data) {
+  extern struct trapframe* irq_tf;
+  debug_monitor(irq_tf);
+  return 0;
+}
+
 /* debug_init - init all debug registers by using restore_dr */
 void debug_init(void)
 {
@@ -445,6 +452,9 @@ void debug_init(void)
 	memset(local_dr_counter, 0, sizeof(local_dr_counter));
 	control_dr = DR7_GEXACT | DR7_LEXACT;
 	restore_all_dr();
+
+  register_irq(T_DEBUG, debug_monitor_handler, NULL);
+  register_irq(T_BRKPT, debug_monitor_handler, NULL);
 }
 
 /* debug_list_dr - list and print all debug registrs' value and type */

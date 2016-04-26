@@ -39,6 +39,14 @@
 #define IRQ_ERROR               19
 #define IRQ_SPURIOUS            31
 
+#define I_TIMER                 (IRQ_OFFSET+IRQ_TIMER)
+#define I_KBD                   (IRQ_OFFSET+IRQ_KBD)
+#define I_COM1                  (IRQ_OFFSET+IRQ_COM1)
+#define I_IDE1                  (IRQ_OFFSET+IRQ_IDE1)
+#define I_IDE2                  (IRQ_OFFSET+IRQ_IDE2)
+#define I_ERROR                 (IRQ_OFFSET+IRQ_ERROR)
+#define I_SPURIOUS              (IRQ_OFFSET+IRQ_SPURIOUS)
+
 /* registers as pushed by pushal */
 struct pushregs {
 	uint32_t reg_edi;

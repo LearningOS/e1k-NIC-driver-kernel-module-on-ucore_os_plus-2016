@@ -88,6 +88,10 @@ static int ide_wait_ready(unsigned short iobase, bool check_error)
 	return 0;
 }
 
+int null_handler(int irq, void* data) {
+  return 0;
+}
+
 void ide_init(void)
 {
 	static_assert((SECTSIZE % 4) == 0);
@@ -157,7 +161,9 @@ void ide_init(void)
 
 	// enable ide interrupt
 	pic_enable(IRQ_IDE1);
+  register_irq(I_IDE1, null_handler, NULL);
 	pic_enable(IRQ_IDE2);
+  register_irq(I_IDE2, null_handler, NULL);
 
 	sem_init(&(channels[0].sem), 1);
 	sem_init(&(channels[1].sem), 1);

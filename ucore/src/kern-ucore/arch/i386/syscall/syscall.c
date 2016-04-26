@@ -436,3 +436,12 @@ void syscall(void)
 	panic("undefined syscall %d, pid = %d, name = %s.\n",
 	      num, current->pid, current->name);
 }
+
+int syscall_handler(int irq, void* data) {
+  syscall();
+  return 0;
+}
+
+void syscall_init() {
+  register_irq(T_SYSCALL, syscall_handler, NULL);
+}
