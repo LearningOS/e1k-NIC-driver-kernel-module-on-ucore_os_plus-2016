@@ -1147,12 +1147,15 @@ DDE_WEAK int register_netdev(struct net_device * a) {
 	return 0;
 }
 
+extern int e1000_irq_handler(int irq, void* data);
+#define IRQ_OFFSET 32
 int request_threaded_irq(unsigned int irq, irq_handler_t handler,
                          irq_handler_t thread_fn, unsigned long irqflags,
                          const char *devname, void *dev_id) {
 	dde_printf("request_threaded_irq not implemented\n");
     kprintf("irq %d devname %s dev_id %x\n", irq, devname, dev_id);
-    ioapicenable(irq, 0);
+    register_irq(IRQ_OFFSET+irq, e1000_irq_handler, NULL);
+	ioapicenable(irq, 0);
     return 0;
 }
 

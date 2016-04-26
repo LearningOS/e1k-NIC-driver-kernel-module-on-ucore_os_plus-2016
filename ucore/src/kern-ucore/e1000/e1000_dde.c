@@ -106,15 +106,25 @@ void enable_e1000() {
     netdev->netdev_ops->ndo_open(netdev);
 }
 
-void e1000_intr_trap() {
+void e1000_intr_trap(int irq) {
     kprintf("processing e1000 intr\n");
-    e1000_intr(11, netdev);
+    e1000_intr(irq, netdev);
     kprintf("processing e1000 intr done\n");
 }
 
+int e1000_irq_handler(int irq, void* data) {
+	e1000_intr_trap(irq);
+	lapiceoi();
+	return 0;
+}
+
+//void e1000_irq_init() {
+//	register_irq(T_SYSCALL, e1000_irq_handler, NULL);
+//}
+
 int e1000_dde_init(struct pci_func *pcif) {
-    e1000_dev_init(pcif);
-    e1000_probe(&e1000_dev, &ent);
+    e1000_dev_init(pcif);//setup pci device
+    e1000_probe(&e1000_dev, &ent);//set relation between pci and e1000(set as an netdevice in it)
     netdev = e1000_dev.dev.p;
     kprintf("netdev %x\n", netdev);
     return 0;
