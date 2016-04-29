@@ -1003,7 +1003,7 @@ int do_cleanup_module(const char __user * name_user)
 {
 	struct module *mod;
 	char name[MODULE_NAME_LEN];
-	int ret, forced = 0;
+	int ret = 0, forced = 0;
 
 	struct mm_struct *mm = current->mm;
 	lock_mm(mm);
