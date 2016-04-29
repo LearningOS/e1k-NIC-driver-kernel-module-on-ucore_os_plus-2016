@@ -97,14 +97,18 @@ struct module {
 
 	// members of list of modules
 	list_entry_t list;
-
+  
 	// unique handle for this module
 	char name[MODULE_NAME_LEN];
+
+  char padding1[66];
 
 	// exported symbols
 	const struct kernel_symbol *syms;
 	const unsigned long *crcs;
 	unsigned int num_syms;
+
+  char padding2[40];
 
 	// startup function
 	int (*init) (void);
@@ -118,30 +122,38 @@ struct module {
 	unsigned int init_size, core_size;
 
 	unsigned int init_text_size, core_text_size;
+	
+	/* Size of RO sections of the module (text+rodata) */
+  unsigned int init_ro_size, core_ro_size;
+
 
 	struct mod_arch_specific arch;
 
 	unsigned int taints;
 
+  char padding3[16];
+  
 	// for kallsyms
 	struct symtab_s *symtab;
 	unsigned int num_symtab;
 	char *strtab;
+	
+	char padding4[24];
 
 	// omitted section and notes attributes
 	void *percpu;
-
-	// omitted markers and tracing
-
-	list_entry_t modules_which_use_me;
-
-	// TODO: task waiter
-	struct proc_struct *waiter;
+	
+	char padding5[44];
 
 	// destruction function
 	void (*exit) (void);
 
 	atomic_t ref;
+	
+	// TODO: task waiter
+	struct proc_struct *waiter;
+	// omitted markers and tracing
+	list_entry_t modules_which_use_me;
 };
 
 #define le2mod(le, member)                          \

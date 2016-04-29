@@ -72,9 +72,9 @@ int kern_init(void)
     ioapicenable(IRQ_KBD, 0);
     ioapicenable(IRQ_COM1, 0);
 
-	pci_register_e1000();
-    enable_e1000();
-    test_transmission();
+	//pci_register_e1000();
+    //enable_e1000();
+    //test_transmission();
 
     init_lwip_dev();
 	/* do nothing */

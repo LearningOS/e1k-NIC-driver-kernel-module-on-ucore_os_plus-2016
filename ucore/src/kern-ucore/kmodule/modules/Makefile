@@ -1,1 +1,1 @@
-dirs-y :=mod-add
+dirs-y :=mod-add e1000
