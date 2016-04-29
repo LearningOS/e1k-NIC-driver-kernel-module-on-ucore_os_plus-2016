@@ -10,7 +10,7 @@
 #include <kio.h>
 #include <mp.h>
 #include <spinlock.h>
-
+#include <mod.h>
 /* The slab allocator used in ucore is based on an algorithm first introduced by 
    Jeff Bonwick for the SunOS operating system. The paper can be download from 
    http://citeseer.ist.psu.edu/bonwick94slab.html 
@@ -108,7 +108,7 @@ struct kmem_cache_s {
 };
 
 #define MIN_SIZE_ORDER          5	// 32
-#define MAX_SIZE_ORDER          17	// 128k
+#define MAX_SIZE_ORDER          18	// 128k
 #define SLAB_CACHE_NUM          (MAX_SIZE_ORDER - MIN_SIZE_ORDER + 1)
 
 static kmem_cache_t slab_cache[SLAB_CACHE_NUM];
@@ -423,6 +423,7 @@ void *ucore_kmalloc(size_t size) {
     memset(ret, 0, size);
     return ret;
 }
+EXPORT_SYMBOL(ucore_kmalloc);
 
 static void kmem_cache_free(kmem_cache_t * cachep, void *obj);
 
