@@ -242,21 +242,41 @@ struct net_device *e1000_get_hw_dev(struct e1000_hw *hw)
  * e1000_init_module is the first routine called when the driver is
  * loaded. All it does is register with the PCI subsystem.
  **/
+//static int __init e1000_init_module(void)
+//{
+//	int ret;
+//	pr_info("%s - version %s\n", e1000_driver_string, e1000_driver_version);
+
+//	pr_info("%s\n", e1000_copyright);
+
+//	ret = pci_register_driver(&e1000_driver);
+//	if (copybreak != COPYBREAK_DEFAULT) {
+//		if (copybreak == 0)
+//			pr_info("copybreak disabled\n");
+//		else
+//			pr_info("copybreak enabled for "
+//				   "packets <= %u bytes\n", copybreak);
+//	}
+//	return ret;
+//}
+
 static int __init e1000_init_module(void)
 {
 	int ret;
-	pr_info("%s - version %s\n", e1000_driver_string, e1000_driver_version);
+	//pr_info("%s - version %s\n", e1000_driver_string, e1000_driver_version);
 
-	pr_info("%s\n", e1000_copyright);
+	//pr_info("%s\n", e1000_copyright);
 
-	ret = pci_register_driver(&e1000_driver);
-	if (copybreak != COPYBREAK_DEFAULT) {
-		if (copybreak == 0)
-			pr_info("copybreak disabled\n");
-		else
-			pr_info("copybreak enabled for "
-				   "packets <= %u bytes\n", copybreak);
-	}
+	ret = pci_register_e1000();
+	//printk("register ok");
+	
+	//if (copybreak != COPYBREAK_DEFAULT) {
+	//	if (copybreak == 0)
+	//		pr_info("copybreak disabled\n");
+	//	else
+	//		pr_info("copybreak enabled for "
+	//			   "packets <= %u bytes\n", copybreak);
+	//}
 	return ret;
 }
 
@@ -268,9 +288,14 @@ module_init(e1000_init_module);
  * e1000_exit_module is called just before the driver is removed
  * from memory.
  **/
+//static void __exit e1000_exit_module(void)
+//{
+//	pci_unregister_driver(&e1000_driver);
+//}
+
 static void __exit e1000_exit_module(void)
 {
-	pci_unregister_driver(&e1000_driver);
+	pci_unregister_e1000();
 }
 
 module_exit(e1000_exit_module);

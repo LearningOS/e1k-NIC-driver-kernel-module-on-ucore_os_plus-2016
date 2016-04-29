@@ -124,8 +124,15 @@ int e1000_irq_handler(int irq, void* data) {
 
 int e1000_dde_init(struct pci_func *pcif) {
     e1000_dev_init(pcif);//setup pci device
+}
+
+int pci_register_e1000() {
     e1000_probe(&e1000_dev, &ent);//set relation between pci and e1000(set as an netdevice in it)
     netdev = e1000_dev.dev.p;
     kprintf("netdev %x\n", netdev);
     return 0;
+}
+int pci_unregister_e1000(){
+	//e1000_remove(&e1000_dev);
+	return 0;
 }
