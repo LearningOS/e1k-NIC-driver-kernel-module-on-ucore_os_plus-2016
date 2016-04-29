@@ -3,6 +3,7 @@
 #include <string.h>
 #include <pci.h>
 #include <pcireg.h>
+#include <mod.h>
 
 // Flag to do "lspci" at bootup
 static int pci_show_devs = 1;
@@ -29,10 +30,23 @@ struct pci_driver pci_attach_class[] = {
     { 0, 0, 0 },
 };
 
-void e1000_dde_init(struct pci_func *pcif);
+struct pci_func e1000_func;//can expand to a list in future
+void e1000_func_init(struct pci_func *pcif)
+{
+	memset(&e1000_func, 0, sizeof(struct pci_func));
+	e1000_func.dev_id=pcif->dev_id;
+	e1000_func.func=pcif->func;
+	e1000_func.dev=pcif->dev;
+}
+//exposer to outside
+e1000_pcif_get(struct pci_func *pcif)
+{
+	*pcif=e1000_func;
+}
+EXPORT_SYMBOL(e1000_pcif_get);
 
 struct pci_driver pci_attach_vendor[] = {
-    { 0x8086, 0x100E, &e1000_dde_init },
+    { 0x8086, 0x100E, &e1000_func_init },
     { 0, 0, 0 },
 };
 
@@ -236,3 +250,19 @@ pci_init(void)
     kprintf("pci_init done\n");
     return ret;
 }
+//for net support
+
+void e1000_transmit_null(void *buf, int size)
+{
+	kprintf("we don't have e1000 driver!");
+}
+
+struct net_device_ops e1000_netdev_ops = {
+	.transmit_pkt		= e1000_transmit_null,
+};
+
+void init_transmit(uintptr_t trans_func)
+{
+	e1000_netdev_ops.transmit_pkt = trans_func;
+}
+EXPORT_SYMBOL(init_transmit);

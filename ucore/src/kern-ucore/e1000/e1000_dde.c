@@ -7,6 +7,8 @@ const char e1000_dev_name[] = "e1000_pci_dev";
 struct pci_dev e1000_dev;
 struct net_device *netdev;
 
+struct pci_func *pcif_handler;
+
 struct pci_device_id ent;
 
 void e1000_dev_init(struct pci_func *pcif) {
@@ -122,14 +124,22 @@ int e1000_irq_handler(int irq, void* data) {
 //	register_irq(T_SYSCALL, e1000_irq_handler, NULL);
 //}
 
-int e1000_dde_init(struct pci_func *pcif) {
-    e1000_dev_init(pcif);//setup pci device
-}
+//int e1000_dde_init(struct pci_func *pcif) {
+//    e1000_dev_init(pcif);//setup pci device
+//}
 
 int pci_register_e1000() {
+	e1000_pcif_get(pcif_handler);//get
+	e1000_dev_init(pcif_handler);//init
+	init_transmit(&transmit_packet);
+	
     e1000_probe(&e1000_dev, &ent);//set relation between pci and e1000(set as an netdevice in it)
     netdev = e1000_dev.dev.p;
     kprintf("netdev %x\n", netdev);
+	
+	
+	//tmp test
+	enable_e1000();
     return 0;
 }
 int pci_unregister_e1000(){

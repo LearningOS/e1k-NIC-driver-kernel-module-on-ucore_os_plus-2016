@@ -51,10 +51,10 @@ void load_mod(const char *name)
 	struct stat mod_stat;
 	memset(&mod_stat, 0, sizeof(mod_stat));
 	fstat(fd, &mod_stat);
-	if (mod_stat.st_size <= 0 || mod_stat.st_size > (1 << 20)) {
-		cprintf("wrong obj file size: %d\n", mod_stat.st_size);
-		return;
-	}
+	//if (mod_stat.st_size <= 0 || mod_stat.st_size > (1 << 20)) {
+	//	cprintf("wrong obj file size: %d\n", mod_stat.st_size);
+	//	return;
+	//}
 	cprintf("loading kern module: %s, size = %d\n", name, mod_stat.st_size);
 	void *buffer = malloc(mod_stat.st_size);
 	if (buffer == NULL) {

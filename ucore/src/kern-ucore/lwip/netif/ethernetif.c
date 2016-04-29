@@ -131,8 +131,10 @@ low_level_output(struct netif *netif, struct pbuf *p)
     memcpy(data + totlen, q->payload, q->len);
     totlen += q->len;
   }
-
-  transmit_packet(data, totlen);
+#include <pci.h>
+  extern struct net_device_ops e1000_netdev_ops; 
+  (e1000_netdev_ops.transmit_pkt)(data, totlen);
+  //transmit_packet(data, totlen);
 
 #if ETH_PAD_SIZE
   pbuf_header(p, ETH_PAD_SIZE); /* reclaim the padding word */

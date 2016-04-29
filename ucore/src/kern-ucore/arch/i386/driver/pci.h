@@ -27,6 +27,10 @@ struct pci_bus {
     uint32_t busno;
 };
 
+struct net_device_ops {
+	void			(*transmit_pkt) (void *buf, int size); 
+};
+
 int pci_init(void);
 void pci_func_enable(struct pci_func *f);
 
