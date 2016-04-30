@@ -16,6 +16,7 @@
 #include <sem.h>
 #include <stdlib.h>
 #include <error.h>
+#include <stdio.h>
 
 #ifndef ARCH_SHF_SMALL
 #define ARCH_SHF_SMALL 0
@@ -1093,3 +1094,4 @@ EXPORT_SYMBOL(add_func);
 EXPORT_SYMBOL(mul_func);
 EXPORT_SYMBOL(memcpy);
 EXPORT_SYMBOL(strlen);
+EXPORT_SYMBOL(cprintf);

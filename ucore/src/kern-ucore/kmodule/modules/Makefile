@@ -1,1 +1,1 @@
-dirs-y :=mod-add e1000
+dirs-y :=mod-add e1000 #pci
