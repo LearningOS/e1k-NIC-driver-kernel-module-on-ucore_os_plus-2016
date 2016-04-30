@@ -4,6 +4,7 @@
 #include <trap.h>
 #include <error.h>
 #include <proc.h>
+#include <mod.h>
 
 // I/O Addresses of the two programmable interrupt controllers
 #define IO_PIC1             0x20	// Master (IRQs 0-7)
@@ -127,3 +128,5 @@ void register_irq(int irq, ucore_irq_handler_t handler, void *opaque) {
     kprintf("WARNING: register_irq: invalid irq 0x%02x(%d)\n", irq, irq);
   }
 }
+EXPORT_SYMBOL(register_irq);
+

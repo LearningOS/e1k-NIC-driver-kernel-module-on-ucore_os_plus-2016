@@ -4,6 +4,7 @@
 #include <mmu.h>
 #include <arch.h>
 #include <pmm.h>
+#include <mod.h>
 
 // Local APIC registers, divided by 4 for use as uint32_t[] indices.
 #define ID      (0x0020/4)   // ID
@@ -123,6 +124,7 @@ lapiceoi(void)
   if(lapic)
     lapicw(EOI, 0);
 }
+EXPORT_SYMBOL(lapiceoi);
 
 // Spin for a given number of microseconds.
 // On real hardware would want to tune this dynamically.

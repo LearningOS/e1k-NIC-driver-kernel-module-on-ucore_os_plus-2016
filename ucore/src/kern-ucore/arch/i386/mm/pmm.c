@@ -12,6 +12,7 @@
 #include <proc.h>
 #include <kio.h>
 #include <mp.h>
+#include <mod.h>
 /*#include <ramdisk.h>
 */
 /* *
@@ -518,6 +519,7 @@ void *ucore_ioremap(uintptr_t pa, size_t size)
 {
     return ioremap(pa, size);
 }
+EXPORT_SYMBOL(ucore_ioremap);
 
 // map physical addr to some va
 void *ioremap(uintptr_t pa, size_t size)

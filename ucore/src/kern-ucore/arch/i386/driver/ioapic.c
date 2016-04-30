@@ -3,6 +3,7 @@
 // See also picirq.c.
 #include <mp.h>
 #include <trap.h>
+#include <mod.h>
 
 #define IOAPIC  0xFEC00000   // Default physical address of IO APIC
 
@@ -71,3 +72,4 @@ ioapicenable(int irq, int cpunum)
   ioapicwrite(REG_TABLE+2*irq, IRQ_OFFSET + irq);
   ioapicwrite(REG_TABLE+2*irq+1, cpunum << 24);
 }
+EXPORT_SYMBOL(ioapicenable);

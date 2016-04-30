@@ -1083,10 +1083,13 @@ int module_finalize(const struct elfhdr *hdr,
 
 int (*add_func)(int x, int y);
 int (*mul_func)(int x, int y);
-EXPORT_SYMBOL(add_func);
-EXPORT_SYMBOL(mul_func);
 
 void mod_init()
 {
 	// TODO: read mod dep file
 }
+
+EXPORT_SYMBOL(add_func);
+EXPORT_SYMBOL(mul_func);
+EXPORT_SYMBOL(memcpy);
+EXPORT_SYMBOL(strlen);

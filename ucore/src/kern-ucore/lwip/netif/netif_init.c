@@ -2,17 +2,21 @@
 #include "ipv4/lwip/ip.h"
 #include "lwip/netif.h"
 #include "netif/etharp.h"
+#include <mod.h>
 
 static struct netif netif;
 
 void ethernetif_input_dde(void *data, int len) {
     ethernetif_input(&netif, data, len);
 }
+EXPORT_SYMBOL(ethernetif_input_dde);
 
 uint8_t mac_address[6];
 void set_mac_address(uint8_t *mac_addr) {
     memcpy(mac_address, mac_addr, 6);
 }
+EXPORT_SYMBOL(set_mac_address);
+
 
 err_t ethernetif_init(struct netif *netif);
 err_t ethernet_input(struct pbuf *p, struct netif *netif);
