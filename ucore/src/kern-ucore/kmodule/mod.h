@@ -101,7 +101,7 @@ struct module {
 	// unique handle for this module
 	char name[MODULE_NAME_LEN];
 
-  char padding1[66];
+  char padding1[62];
 
 	// exported symbols
 	const struct kernel_symbol *syms;
@@ -143,7 +143,7 @@ struct module {
 	// omitted section and notes attributes
 	void *percpu;
 	
-	char padding5[44];
+	char padding5[48];
 
 	// destruction function
 	void (*exit) (void);
