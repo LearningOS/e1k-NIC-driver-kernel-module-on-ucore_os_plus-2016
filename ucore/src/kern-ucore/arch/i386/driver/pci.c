@@ -35,13 +35,16 @@ void e1000_func_init(struct pci_func *pcif)
 {
 	memset(&e1000_func, 0, sizeof(struct pci_func));
 	e1000_func.dev_id=pcif->dev_id;
-	e1000_func.func=pcif->func;
+	pcif->func=pcif->func;
 	e1000_func.dev=pcif->dev;
+	kprintf("found e1000");
 }
 //exposer to outside
 e1000_pcif_get(struct pci_func *pcif)
 {
-	*pcif=e1000_func;
+	pcif->dev_id=e1000_func.dev_id;
+	pcif->func=pcif->func;
+	pcif->dev=e1000_func.dev;
 }
 EXPORT_SYMBOL(e1000_pcif_get);
 

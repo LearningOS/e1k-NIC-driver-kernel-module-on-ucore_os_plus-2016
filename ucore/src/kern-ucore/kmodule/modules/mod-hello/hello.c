@@ -7,6 +7,11 @@
 #include <linux/kobject.h>
 #include <linux/types.h>
 
+#include <linux/pci.h>
+#include <linux/netdevice.h>
+#include <linux/skbuff.h>
+
+
 struct test_device_driver {
   char *name;
   struct device_driver driver;
@@ -36,6 +41,25 @@ static int test_driver_register(struct test_device_driver *test_driver) {
   return driver_register(&test_driver->driver);
 }
 
+struct pci_func {
+    struct pci_bus *bus;	// Primary bus for bridges
+
+    uint32_t dev;
+    uint32_t func;
+
+    uint32_t dev_id;
+    uint32_t dev_class;
+
+    uint32_t reg_base[6];
+    uint32_t reg_size[6];
+    uint8_t irq_line;
+};
+
+struct pci_func *pcif_handler;
+void test_e1000()
+{
+	e1000_pcif_get(pcif_handler);//get
+}
 static int hello_init(void) {
   int ret = -1;
   printk("Hello, world\n");
@@ -51,6 +75,9 @@ static int hello_init(void) {
     printk("REG ERR\n");
   else
     printk("REG OK\n");
+
+	test_e1000();
+
   return 0;
 }
 

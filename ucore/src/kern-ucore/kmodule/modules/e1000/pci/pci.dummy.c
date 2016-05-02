@@ -132,10 +132,10 @@ DDE_WEAK void pci_restore_state(struct pci_dev * a) {
 }
 
 /* Power management related routines */
-DDE_WEAK int pci_save_state(struct pci_dev * a) {
-	dde_printf("pci_save_state not implemented\n");
-	return 0;
-}
+//DDE_WEAK int pci_save_state(struct pci_dev * a) {
+//	dde_printf("pci_save_state not implemented\n");
+//	return 0;
+//}
 
 /*
  */

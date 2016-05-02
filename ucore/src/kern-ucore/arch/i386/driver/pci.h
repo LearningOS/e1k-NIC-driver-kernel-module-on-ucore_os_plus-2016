@@ -28,7 +28,7 @@ struct pci_bus {
 };
 
 struct net_device_ops {
-	void			(*transmit_pkt) (void *buf, int size); 
+	void	(*transmit_pkt) (void *buf, int size); 
 };
 
 int pci_init(void);

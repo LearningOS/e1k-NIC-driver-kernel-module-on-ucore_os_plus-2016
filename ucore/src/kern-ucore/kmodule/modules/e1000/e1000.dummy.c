@@ -47,6 +47,9 @@
 #define dde_printf(...) dde_dummy_printf(__VA_ARGS__)
 
 void *ucore_kmalloc(size_t size);
+void *ucore_memset(void * a, int b, size_t c);
+void *ucore_strcpy(void *dst, const void *src);
+
 #define PTR_ALIGN(p, a)         ((typeof(p))ALIGN((unsigned long)(p), (a)))
 
 int dev_addr_init(struct net_device *dev) {
@@ -586,8 +589,8 @@ DDE_WEAK void * __memcpy(void * a, const void * b, size_t c) {
 /*
  */
 DDE_WEAK void * memset(void * a, int b, size_t c) {
-	dde_printf("memset not implemented\n");
-	return 0;
+	//dde_printf("memset not implemented\n");
+	return ucore_memset(a, b, c);
 }
 
 /*
@@ -1211,7 +1214,8 @@ DDE_WEAK void skb_tstamp_tx(struct sk_buff * a, struct skb_shared_hwtstamps * b)
 /*
  */
 DDE_WEAK char * strcpy(char * a, const char * b) {
-	dde_printf("strcpy not implemented\n");
+	return ucore_strcpy(a,b);
+	//dde_printf("strcpy not implemented\n");
 	return 0;
 }
 

@@ -4037,3 +4037,5 @@ __attribute__((section("__ksymtab" sec), unused)) \
 
 EXPORT_SYMBOL(pci_ioremap_bar);
 EXPORT_SYMBOL(pci_enable_device);
+EXPORT_SYMBOL(pci_save_state);
+

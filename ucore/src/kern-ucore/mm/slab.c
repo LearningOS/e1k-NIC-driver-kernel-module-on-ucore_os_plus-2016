@@ -108,7 +108,8 @@ struct kmem_cache_s {
 };
 
 #define MIN_SIZE_ORDER          5	// 32
-#define MAX_SIZE_ORDER          18	// 128k
+//#define MAX_SIZE_ORDER          18	// 128k
+#define MAX_SIZE_ORDER          21	// 128k
 #define SLAB_CACHE_NUM          (MAX_SIZE_ORDER - MIN_SIZE_ORDER + 1)
 
 static kmem_cache_t slab_cache[SLAB_CACHE_NUM];
@@ -417,6 +418,16 @@ void *kmalloc(size_t size)
 	}
 	return kmem_cache_alloc(slab_cache + (order - MIN_SIZE_ORDER));
 }
+
+void *ucore_memset(void *s, char c, size_t n) {
+	return memset(s, c, n);
+}
+EXPORT_SYMBOL(ucore_memset);
+
+void *ucore_strcpy(void *dst, const void *src){
+	return strcpy(dst,src);
+}
+EXPORT_SYMBOL(ucore_strcpy);
 
 void *ucore_kmalloc(size_t size) {
     void *ret = kmalloc(size);

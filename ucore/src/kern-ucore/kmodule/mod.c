@@ -1095,3 +1095,4 @@ EXPORT_SYMBOL(mul_func);
 EXPORT_SYMBOL(memcpy);
 EXPORT_SYMBOL(strlen);
 EXPORT_SYMBOL(cprintf);
+EXPORT_SYMBOL(strcpy);
