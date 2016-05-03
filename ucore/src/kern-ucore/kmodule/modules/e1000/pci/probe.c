@@ -326,6 +326,7 @@ static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int rom)
 	for (pos = 0; pos < howmany; pos++) {
 		struct resource *res = &dev->resource[pos];
 		reg = PCI_BASE_ADDRESS_0 + (pos << 2);
+		kprintf("\ntest %p\n",res);
 		pos += __pci_read_base(dev, pci_bar_unknown, res, reg);
 	}
 

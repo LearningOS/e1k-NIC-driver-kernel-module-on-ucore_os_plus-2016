@@ -41,3 +41,4 @@ void init_lwip_dev() {
     void httpd_main(int argc, char **argv);
     sys_thread_new("http_server", httpd_main, 0, 0, 0);
 }
+EXPORT_SYMBOL(init_lwip_dev);

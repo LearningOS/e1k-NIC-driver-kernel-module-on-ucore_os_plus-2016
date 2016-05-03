@@ -49,6 +49,7 @@
 void *ucore_kmalloc(size_t size);
 void *ucore_memset(void * a, int b, size_t c);
 void *ucore_strcpy(void *dst, const void *src);
+char *ucore_strncpy(char *dst, const char *src, size_t len);
 
 #define PTR_ALIGN(p, a)         ((typeof(p))ALIGN((unsigned long)(p), (a)))
 
@@ -994,10 +995,10 @@ DDE_WEAK void pci_restore_state(struct pci_dev * a) {
 }
 
 /* Power management related routines */
-DDE_WEAK int pci_save_state(struct pci_dev * a) {
-	dde_printf("pci_save_state not implemented\n");
-	return 0;
-}
+//DDE_WEAK int pci_save_state(struct pci_dev * a) {
+//	dde_printf("pci_save_state not implemented\n");
+//	return 0;
+//}
 
 /*
  */
@@ -1229,7 +1230,8 @@ DDE_WEAK unsigned long strlcpy(char * a, const char * b, size_t c) {
 /*
  */
 DDE_WEAK char * strncpy(char * a, const char * b, __kernel_size_t c) {
-	dde_printf("strncpy not implemented\n");
+	return ucore_strncpy(a,b,c);
+	//dde_printf("strncpy not implemented\n");
 	return 0;
 }
 

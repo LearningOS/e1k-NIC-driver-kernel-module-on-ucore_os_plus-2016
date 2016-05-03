@@ -25,6 +25,7 @@ void e1000_dev_init(struct pci_func *pcif) {
     e1000_dev.devfn = (pcif->dev << 3) + pcif->func;
     e1000_dev.dev.init_name = e1000_dev_name;
 	
+	kprintf("%d| %d| %d",e1000_dev.vendor,e1000_dev.device,e1000_dev.devfn);
     pci_setup_device(&e1000_dev);
 	kprintf("7\n");
 
@@ -158,10 +159,13 @@ int pci_register_e1000() {
 	
 	//tmp test
 	enable_e1000();
+	void init_lwip_dev();
+	init_lwip_dev();
 	return 0;
 }
 int pci_unregister_e1000(){
 	//e1000_remove(&e1000_dev);
+	
 	printk("goodby");
 	return 0;
 }

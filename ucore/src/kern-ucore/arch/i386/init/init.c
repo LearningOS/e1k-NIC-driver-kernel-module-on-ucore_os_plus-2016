@@ -76,7 +76,7 @@ int kern_init(void)
     //enable_e1000();
     //test_transmission();
 
-    init_lwip_dev();
+    //init_lwip_dev();
 	/* do nothing */
 	cpu_idle();		// run idle process
 }

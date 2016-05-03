@@ -429,6 +429,11 @@ void *ucore_strcpy(void *dst, const void *src){
 }
 EXPORT_SYMBOL(ucore_strcpy);
 
+char *ucore_strncpy(char *dst, const char *src, size_t len){
+	return strncpy(dst,src,len);
+}
+EXPORT_SYMBOL(ucore_strncpy);
+
 void *ucore_kmalloc(size_t size) {
     void *ret = kmalloc(size);
     memset(ret, 0, size);
