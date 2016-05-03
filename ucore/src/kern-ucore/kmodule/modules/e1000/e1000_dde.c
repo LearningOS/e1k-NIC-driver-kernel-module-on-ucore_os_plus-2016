@@ -148,7 +148,7 @@ int pci_register_e1000() {
 	kprintf("1\n");
 	e1000_dev_init(&pcif_handler);//init
 	kprintf("2\n");
-	init_transmit(&transmit_packet);
+	register_transmit_func(&transmit_packet);
 	kprintf("3\n");
 
     
@@ -157,15 +157,16 @@ int pci_register_e1000() {
     kprintf("netdev %x\n", netdev);
 
 	
-	//tmp test
+	//tmp test, should call by ifconfig in future
 	enable_e1000();
 	void init_lwip_dev();
 	init_lwip_dev();
 	return 0;
 }
 int pci_unregister_e1000(){
-	//e1000_remove(&e1000_dev);
-	
+	e1000_remove(&e1000_dev);
+	unregister_transmit_func();
+	//kfree(&e1000_dev);
 	printk("goodby");
 	return 0;
 }

@@ -264,8 +264,15 @@ struct net_device_ops e1000_netdev_ops = {
 	.transmit_pkt		= e1000_transmit_null,
 };
 
-void init_transmit(uintptr_t trans_func)
+void register_transmit_func(uintptr_t trans_func)
 {
 	e1000_netdev_ops.transmit_pkt = trans_func;
 }
-EXPORT_SYMBOL(init_transmit);
+EXPORT_SYMBOL(register_transmit_func);
+
+void unregister_transmit_func()
+{
+	e1000_netdev_ops.transmit_pkt = e1000_transmit_null;
+}
+EXPORT_SYMBOL(unregister_transmit_func);
+

@@ -104,7 +104,9 @@ void pic_init(void) {
 void irq_clear(unsigned int irq) {
   actions[irq].handler = NULL;
   actions[irq].opaque = NULL;
+  kprintf("irq 0x%02x unregistered\n", irq);
 }
+EXPORT_SYMBOL(irq_clear);
 
 void irq_handler() {
   int irq = irq_tf->tf_trapno;

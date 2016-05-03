@@ -441,6 +441,11 @@ void *ucore_kmalloc(size_t size) {
 }
 EXPORT_SYMBOL(ucore_kmalloc);
 
+void ucore_kfree(void *objp){
+	return kfree(objp);
+}
+EXPORT_SYMBOL(ucore_kfree);
+
 static void kmem_cache_free(kmem_cache_t * cachep, void *obj);
 
 // kmem_slab_destroy - call free_pages & kmem_cache_free to free a slab 

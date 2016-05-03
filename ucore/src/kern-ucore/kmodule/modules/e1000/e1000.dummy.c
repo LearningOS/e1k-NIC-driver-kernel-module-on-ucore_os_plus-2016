@@ -46,10 +46,13 @@
 #define dde_dummy_printf(...) kprintf(__VA_ARGS__)
 #define dde_printf(...) dde_dummy_printf(__VA_ARGS__)
 
+#define IRQ_OFFSET 32
 void *ucore_kmalloc(size_t size);
 void *ucore_memset(void * a, int b, size_t c);
 void *ucore_strcpy(void *dst, const void *src);
 char *ucore_strncpy(char *dst, const char *src, size_t len);
+void ucore_kfree(void *objp);
+void irq_clear(unsigned int irq);
 
 #define PTR_ALIGN(p, a)         ((typeof(p))ALIGN((unsigned long)(p), (a)))
 
@@ -317,6 +320,7 @@ DDE_WEAK int dev_err(const struct device * a, const char * b, ...) {
 /*
  */
 DDE_WEAK void * dev_get_drvdata(const struct device * a) {
+	return a->p;
 	dde_printf("dev_get_drvdata not implemented\n");
 	return 0;
 }
@@ -495,7 +499,8 @@ DDE_WEAK unsigned long find_next_bit(const unsigned long * a, unsigned long b, u
 /*
  */
 DDE_WEAK void free_irq(unsigned int a, void * b) {
-	dde_printf("free_irq not implemented\n");
+	irq_clear(a+IRQ_OFFSET);
+	//dde_printf("free_irq not implemented\n");
 }
 
 /*
@@ -558,7 +563,8 @@ typeof(unsigned long) kernel_stack;
 /*
  */
 DDE_WEAK void kfree(const void * a) {
-	dde_printf("kfree not implemented\n");
+	return ucore_kfree(a);
+	//dde_printf("kfree not implemented\n");
 }
 
 /*
@@ -1152,7 +1158,6 @@ DDE_WEAK int register_netdev(struct net_device * a) {
 }
 
 extern int e1000_irq_handler(int irq, void* data);
-#define IRQ_OFFSET 32
 int request_threaded_irq(unsigned int irq, irq_handler_t handler,
                          irq_handler_t thread_fn, unsigned long irqflags,
                          const char *devname, void *dev_id) {
