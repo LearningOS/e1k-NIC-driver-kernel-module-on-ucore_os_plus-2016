@@ -1,4 +1,0 @@
-#ifndef __UAPI_ASM_GENERIC_IOCTL_H__
-#define __UAPI_ASM_GENERIC_IOCTL_H__
-
-#endif /* ! __UAPI_ASM_GENERIC_IOCTL_H__ */

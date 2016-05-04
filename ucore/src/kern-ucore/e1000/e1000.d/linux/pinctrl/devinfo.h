@@ -1,4 +1,0 @@
-#ifndef __LINUX_PINCTRL_DEVINFO_H__
-#define __LINUX_PINCTRL_DEVINFO_H__
-
-#endif /* ! __LINUX_PINCTRL_DEVINFO_H__ */

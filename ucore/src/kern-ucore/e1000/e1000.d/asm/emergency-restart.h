@@ -1,4 +1,0 @@
-#ifndef __ASM_EMERGENCY_RESTART_H__
-#define __ASM_EMERGENCY_RESTART_H__
-
-#endif /* ! __ASM_EMERGENCY_RESTART_H__ */
