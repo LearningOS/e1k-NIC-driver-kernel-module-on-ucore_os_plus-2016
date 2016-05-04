@@ -1276,7 +1276,8 @@ DDE_WEAK void unregister_netdev(struct net_device * a) {
 /*
  */
 DDE_WEAK void vfree(const void * a) {
-	dde_printf("vfree not implemented\n");
+	return ucore_kfree(a);
+	//dde_printf("vfree not implemented\n");
 }
 
 /*

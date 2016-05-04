@@ -117,10 +117,13 @@ void test_transmission() {
 	}
 }
 
-void enable_e1000() {
+void open_e1000() {
     netdev->netdev_ops->ndo_open(netdev);
 }
 
+void stop_e1000() {
+	netdev->netdev_ops->ndo_stop(netdev);
+}
 void e1000_intr_trap(int irq) {
     kprintf("processing e1000 intr\n");
     e1000_intr(irq, netdev);
@@ -158,12 +161,15 @@ int pci_register_e1000() {
 
 	
 	//tmp test, should call by ifconfig in future
-	enable_e1000();
+	open_e1000();
 	void init_lwip_dev();
 	init_lwip_dev();
 	return 0;
 }
 int pci_unregister_e1000(){
+	//tmp test, should call by ifconfig in future
+	stop_e1000();
+	
 	e1000_remove(&e1000_dev);
 	unregister_transmit_func();
 	//kfree(&e1000_dev);
