@@ -8,6 +8,8 @@
 
 #include "pci.h"
 
+#include <ucore_export.h>//macro for export symbol
+
 #define PCI_CONF1_ADDRESS(bus, devfn, reg) \
     (0x80000000 | ((reg & 0xF00) << 16) | (bus << 16) \
      | (devfn << 8) | (reg & 0xFC))
@@ -716,22 +718,6 @@ PCI_OP_WRITE(dword, u32, 4)
 //	return ret;
 //}
 //EXPORT_SYMBOL(pcie_capability_clear_and_set_dword);
-
-#ifndef MODULE_SYMBOL_PREFIX
-#define MODULE_SYMBOL_PREFIX ""
-#endif
-
-#define __EXPORT_SYMBOL(sym, sec) 				\
-extern typeof(sym) sym; 			\
-static const char __kstrtab_##sym[] \
-__attribute__((section("__ksymtab_strings"), aligned(1))) \
-= MODULE_SYMBOL_PREFIX #sym; 		\
-static const struct kernel_symbol __ksymtab_##sym \
-	  __used								\
-__attribute__((section("__ksymtab" sec), unused)) \
-= { (unsigned long)&sym, __kstrtab_##sym }
-
-#define EXPORT_SYMBOL(sym) __EXPORT_SYMBOL(sym, "")
 
 EXPORT_SYMBOL(pci_bus_write_config_word);
 EXPORT_SYMBOL(pci_bus_read_config_word);

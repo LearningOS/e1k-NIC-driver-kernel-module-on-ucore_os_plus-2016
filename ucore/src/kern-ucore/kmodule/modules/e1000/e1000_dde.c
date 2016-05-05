@@ -1,7 +1,10 @@
 #include <linux/pci.h>
 #include <linux/netdevice.h>
 #include <linux/skbuff.h>
+#include <linux/interrupt.h>
 #include "e1000_dde.h"
+
+#define IRQ_OFFSET 32
 
 const char e1000_dev_name[] = "e1000_pci_dev";
 struct pci_dev e1000_dev;
@@ -124,6 +127,7 @@ void open_e1000() {
 void stop_e1000() {
 	netdev->netdev_ops->ndo_stop(netdev);
 }
+
 void e1000_intr_trap(int irq) {
     kprintf("processing e1000 intr\n");
     e1000_intr(irq, netdev);
@@ -134,6 +138,15 @@ int e1000_irq_handler(int irq, void* data) {
 	e1000_intr_trap(irq);
 	lapiceoi();
 	return 0;
+}
+
+int request_threaded_irq(unsigned int irq, irq_handler_t handler,
+                         irq_handler_t thread_fn, unsigned long irqflags,
+                         const char *devname, void *dev_id) {
+    kprintf("irq %d devname %s dev_id %x\n", irq, devname, dev_id);
+    register_irq(IRQ_OFFSET+irq, e1000_irq_handler, NULL);
+	ioapicenable(irq, 0);
+    return 0;
 }
 
 //void e1000_irq_init() {

@@ -15,6 +15,7 @@
 #include <linux/rtnetlink.h>
 #include <linux/export.h>
 #include <linux/list.h>
+#include <ucore_export.h>//macro for export symbol
 
 /*
  * General list handling functions
@@ -281,7 +282,7 @@ void __hw_addr_init(struct netdev_hw_addr_list *list)
 	INIT_LIST_HEAD(&list->list);
 	list->count = 0;
 }
-//EXPORT_SYMBOL(__hw_addr_init);
+EXPORT_SYMBOL(__hw_addr_init);
 //
 ///*
 // * Device addresses handling functions
@@ -635,7 +636,7 @@ void dev_uc_init(struct net_device *dev)
 {
 	__hw_addr_init(&dev->uc);
 }
-//EXPORT_SYMBOL(dev_uc_init);
+EXPORT_SYMBOL(dev_uc_init);
 //
 ///*
 // * Multicast list handling functions
@@ -856,4 +857,4 @@ void dev_mc_init(struct net_device *dev)
 {
 	__hw_addr_init(&dev->mc);
 }
-//EXPORT_SYMBOL(dev_mc_init);
+EXPORT_SYMBOL(dev_mc_init);

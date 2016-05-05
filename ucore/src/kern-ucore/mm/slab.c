@@ -10,7 +10,7 @@
 #include <kio.h>
 #include <mp.h>
 #include <spinlock.h>
-#include <mod.h>
+//#include <mod.h>
 /* The slab allocator used in ucore is based on an algorithm first introduced by 
    Jeff Bonwick for the SunOS operating system. The paper can be download from 
    http://citeseer.ist.psu.edu/bonwick94slab.html 
@@ -419,32 +419,32 @@ void *kmalloc(size_t size)
 	return kmem_cache_alloc(slab_cache + (order - MIN_SIZE_ORDER));
 }
 
-void *ucore_memset(void *s, char c, size_t n) {
-	return memset(s, c, n);
-}
-EXPORT_SYMBOL(ucore_memset);
+//void *ucore_memset(void *s, char c, size_t n) {
+//	return memset(s, c, n);
+//}
+//EXPORT_SYMBOL(ucore_memset);
 
-void *ucore_strcpy(void *dst, const void *src){
-	return strcpy(dst,src);
-}
-EXPORT_SYMBOL(ucore_strcpy);
+//void *ucore_strcpy(void *dst, const void *src){
+//	return strcpy(dst,src);
+//}
+//EXPORT_SYMBOL(ucore_strcpy);
 
-char *ucore_strncpy(char *dst, const char *src, size_t len){
-	return strncpy(dst,src,len);
-}
-EXPORT_SYMBOL(ucore_strncpy);
+//char *ucore_strncpy(char *dst, const char *src, size_t len){
+//	return strncpy(dst,src,len);
+//}
+//EXPORT_SYMBOL(ucore_strncpy);
 
-void *ucore_kmalloc(size_t size) {
-    void *ret = kmalloc(size);
-    memset(ret, 0, size);
-    return ret;
-}
-EXPORT_SYMBOL(ucore_kmalloc);
+//void *ucore_kmalloc(size_t size) {
+//    void *ret = kmalloc(size);
+//    memset(ret, 0, size);
+//    return ret;
+//}
+//EXPORT_SYMBOL(ucore_kmalloc);
 
-void ucore_kfree(void *objp){
-	return kfree(objp);
-}
-EXPORT_SYMBOL(ucore_kfree);
+//void ucore_kfree(void *objp){
+//	return kfree(objp);
+//}
+//EXPORT_SYMBOL(ucore_kfree);
 
 static void kmem_cache_free(kmem_cache_t * cachep, void *obj);
 

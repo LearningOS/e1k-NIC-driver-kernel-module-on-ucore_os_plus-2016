@@ -12,6 +12,7 @@
 #include <linux/pci-aspm.h>
 #include <asm-generic/pci-bridge.h>
 #include "pci.h"
+#include <ucore_export.h>//macro for export symbol
 
 //#include <mod.h>
 #define IO_SPACE_LIMIT 0xffff
@@ -2020,21 +2021,5 @@ int pci_setup_device(struct pci_dev *dev)
 //{
 //	bus_sort_breadthfirst(&pci_bus_type, &pci_sort_bf_cmp);
 //}
-
-#ifndef MODULE_SYMBOL_PREFIX
-#define MODULE_SYMBOL_PREFIX ""
-#endif
-
-#define __EXPORT_SYMBOL(sym, sec) 				\
-extern typeof(sym) sym; 			\
-static const char __kstrtab_##sym[] \
-__attribute__((section("__ksymtab_strings"), aligned(1))) \
-= MODULE_SYMBOL_PREFIX #sym; 		\
-static const struct kernel_symbol __ksymtab_##sym \
-	  __used								\
-__attribute__((section("__ksymtab" sec), unused)) \
-= { (unsigned long)&sym, __kstrtab_##sym }
-
-#define EXPORT_SYMBOL(sym) __EXPORT_SYMBOL(sym, "")
 
 EXPORT_SYMBOL(pci_setup_device);

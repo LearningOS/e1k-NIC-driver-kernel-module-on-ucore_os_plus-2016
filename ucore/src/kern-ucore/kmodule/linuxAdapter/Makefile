@@ -1,1 +1,1 @@
-dirs-y :=linuxFunctions #pci
+dirs-y := ucoreFunctions linuxFunctions #pci

@@ -41,18 +41,19 @@
 
 #include <stdarg.h>
 
+#include <ucore_export.h>//macro for export symbol
 #define DDE_WEAK __attribute__((weak))
 
 #define dde_dummy_printf(...) kprintf(__VA_ARGS__)
 #define dde_printf(...) dde_dummy_printf(__VA_ARGS__)
 
 #define IRQ_OFFSET 32
-void *ucore_kmalloc(size_t size);
-void *ucore_memset(void * a, int b, size_t c);
-void *ucore_strcpy(void *dst, const void *src);
-char *ucore_strncpy(char *dst, const char *src, size_t len);
-void ucore_kfree(void *objp);
-void irq_clear(unsigned int irq);
+//void *ucore_kmalloc(size_t size);
+//void *ucore_memset(void * a, int b, size_t c);
+//void *ucore_strcpy(void *dst, const void *src);
+//char *ucore_strncpy(char *dst, const char *src, size_t len);
+//void ucore_kfree(void *objp);
+//void irq_clear(unsigned int irq);
 
 #define PTR_ALIGN(p, a)         ((typeof(p))ALIGN((unsigned long)(p), (a)))
 
@@ -1161,7 +1162,7 @@ DDE_WEAK int register_netdev(struct net_device * a) {
 //int request_threaded_irq(unsigned int irq, irq_handler_t handler,
 //                         irq_handler_t thread_fn, unsigned long irqflags,
 //                         const char *devname, void *dev_id) {
-//	dde_printf("request_threaded_irq not implemented\n");
+//	//dde_printf("request_threaded_irq not implemented\n");
 //    kprintf("irq %d devname %s dev_id %x\n", irq, devname, dev_id);
 //    register_irq(IRQ_OFFSET+irq, e1000_irq_handler, NULL);
 //	ioapicenable(irq, 0);
@@ -1302,3 +1303,133 @@ void *ucore_dma_alloc_coherent(void *dev, size_t size, uint32_t *dma_handle, gfp
     kprintf("alloc dma handle %x saved to %x virtual %x\n", *dma_handle, dma_handle, ret);
     return ret;
 }
+
+EXPORT_SYMBOL(dev_addr_init);
+EXPORT_SYMBOL(netif_alloc_netdev_queues);
+EXPORT_SYMBOL(netif_alloc_rx_queues);
+EXPORT_SYMBOL(alloc_netdev_mqs);
+EXPORT_SYMBOL(ether_setup);
+EXPORT_SYMBOL(alloc_etherdev_mqs);
+EXPORT_SYMBOL(alloc_pages_current);
+EXPORT_SYMBOL(cancel_delayed_work_sync);
+EXPORT_SYMBOL(cancel_work_sync);
+EXPORT_SYMBOL(__const_udelay);
+EXPORT_SYMBOL(consume_skb);
+EXPORT_SYMBOL(csum_ipv6_magic);
+EXPORT_SYMBOL(delayed_work_timer_fn);
+EXPORT_SYMBOL(dev_close);
+EXPORT_SYMBOL(dev_err);
+EXPORT_SYMBOL(dev_get_drvdata);
+EXPORT_SYMBOL(device_set_wakeup_enable);
+EXPORT_SYMBOL(_dev_info);
+EXPORT_SYMBOL(dev_kfree_skb_any);
+EXPORT_SYMBOL(dev_open);
+EXPORT_SYMBOL(dev_set_drvdata);
+EXPORT_SYMBOL(dev_warn);
+EXPORT_SYMBOL(disable_irq);
+EXPORT_SYMBOL(dma_generic_alloc_coherent);
+EXPORT_SYMBOL(dma_set_mask);
+EXPORT_SYMBOL(dma_supported);
+EXPORT_SYMBOL(dql_completed);
+EXPORT_SYMBOL(dql_reset);
+EXPORT_SYMBOL(dump_stack);
+EXPORT_SYMBOL(enable_irq);
+EXPORT_SYMBOL(ethtool_op_get_ts_info);
+EXPORT_SYMBOL(eth_type_trans);
+EXPORT_SYMBOL(eth_validate_addr);
+EXPORT_SYMBOL(find_first_bit);
+EXPORT_SYMBOL(free_irq);
+EXPORT_SYMBOL(free_netdev);
+EXPORT_SYMBOL(init_timer_key);
+EXPORT_SYMBOL(ioread16_rep);
+EXPORT_SYMBOL(ioremap_nocache);
+EXPORT_SYMBOL(iounmap);
+EXPORT_SYMBOL(iowrite16_rep);
+EXPORT_SYMBOL(kfree);
+EXPORT_SYMBOL(__kmalloc);
+EXPORT_SYMBOL(local_bh_disable);
+EXPORT_SYMBOL(local_bh_enable);
+EXPORT_SYMBOL(__memcpy);
+EXPORT_SYMBOL(memset);
+EXPORT_SYMBOL(__modver_version_show);
+EXPORT_SYMBOL(msleep);
+EXPORT_SYMBOL(msleep_interruptible);
+EXPORT_SYMBOL(__mutex_init);
+EXPORT_SYMBOL(mutex_lock);
+EXPORT_SYMBOL(mutex_unlock);
+EXPORT_SYMBOL(netif_receive_skb_internal);
+EXPORT_SYMBOL(napi_gro_complete);
+EXPORT_SYMBOL(napi_gro_flush);
+EXPORT_SYMBOL(__napi_complete);
+EXPORT_SYMBOL(napi_complete);
+EXPORT_SYMBOL(__napi_schedule);
+EXPORT_SYMBOL(__alloc_rx_skb);
+EXPORT_SYMBOL(__netdev_alloc_skb);
+EXPORT_SYMBOL(netdev_err);
+EXPORT_SYMBOL(netdev_info);
+EXPORT_SYMBOL(netdev_warn);
+EXPORT_SYMBOL(netif_carrier_on);
+EXPORT_SYMBOL(netif_carrier_off);
+EXPORT_SYMBOL(netif_device_attach);
+EXPORT_SYMBOL(netif_device_detach);
+EXPORT_SYMBOL(netif_napi_add);
+EXPORT_SYMBOL(__netif_schedule);
+EXPORT_SYMBOL(net_ratelimit);
+EXPORT_SYMBOL(pci_clear_mwi);
+EXPORT_SYMBOL(pci_disable_device);
+EXPORT_SYMBOL(pci_enable_device_mem);
+EXPORT_SYMBOL(__pci_enable_wake);
+EXPORT_SYMBOL(pci_prepare_to_sleep);
+EXPORT_SYMBOL(__pci_register_driver);
+EXPORT_SYMBOL(pci_release_selected_regions);
+EXPORT_SYMBOL(pci_request_selected_regions);
+EXPORT_SYMBOL(pci_restore_state);
+EXPORT_SYMBOL(pci_select_bars);
+EXPORT_SYMBOL(pci_set_master);
+EXPORT_SYMBOL(pci_set_mwi);
+EXPORT_SYMBOL(pci_set_power_state);
+EXPORT_SYMBOL(pci_unregister_driver);
+EXPORT_SYMBOL(pci_wake_from_d3);
+EXPORT_SYMBOL(pcix_get_mmrbc);
+EXPORT_SYMBOL(pcix_set_mmrbc);
+EXPORT_SYMBOL(print_hex_dump);
+EXPORT_SYMBOL(printk);
+EXPORT_SYMBOL(pskb_expand_head);
+EXPORT_SYMBOL(__pskb_pull_tail);
+EXPORT_SYMBOL(___pskb_trim);
+EXPORT_SYMBOL(put_page);
+EXPORT_SYMBOL(queue_delayed_work_on);
+EXPORT_SYMBOL(queue_work_on);
+EXPORT_SYMBOL(_raw_spin_lock);
+EXPORT_SYMBOL(_raw_spin_lock_irqsave);
+EXPORT_SYMBOL(_raw_spin_unlock_irqrestore);
+EXPORT_SYMBOL(register_netdev);
+EXPORT_SYMBOL(rtnl_is_locked);
+EXPORT_SYMBOL(skb_pad);
+EXPORT_SYMBOL(skb_put);
+EXPORT_SYMBOL(skb_trim);
+EXPORT_SYMBOL(skb_tstamp_tx);
+EXPORT_SYMBOL(strcpy);
+EXPORT_SYMBOL(strlcpy);
+EXPORT_SYMBOL(strncpy);
+EXPORT_SYMBOL(synchronize_irq);
+EXPORT_SYMBOL(__udelay);
+EXPORT_SYMBOL(unregister_netdev);
+EXPORT_SYMBOL(vfree);
+EXPORT_SYMBOL(vzalloc);
+EXPORT_SYMBOL(warn_slowpath_null);
+EXPORT_SYMBOL(param_ops_uint);
+EXPORT_SYMBOL(dma_ops);
+EXPORT_SYMBOL(system_state);
+EXPORT_SYMBOL(param_array_ops);
+EXPORT_SYMBOL(__alloc_skb);
+EXPORT_SYMBOL(jiffies);
+EXPORT_SYMBOL(find_next_bit);
+EXPORT_SYMBOL(param_ops_int);
+EXPORT_SYMBOL(kernel_stack);
+EXPORT_SYMBOL(system_wq);
+EXPORT_SYMBOL(dma_ops);
+
+
+
+

@@ -23,7 +23,7 @@
 #include <linux/device.h>
 #include <asm-generic/pci-bridge.h>
 #include "pci.h"
-
+#include <ucore_export.h>//macro for export symbol
 //#include <mod.h>
 //const char *pci_power_names[] = {
 //	"error", "D0", "D1", "D2", "D3hot", "D3cold", "unknown",
@@ -4018,22 +4018,6 @@ int pci_enable_device(struct pci_dev *dev)
 //EXPORT_SYMBOL(pci_prepare_to_sleep);
 //EXPORT_SYMBOL(pci_back_from_sleep);
 //EXPORT_SYMBOL_GPL(pci_set_pcie_reset_state);
-
-#ifndef MODULE_SYMBOL_PREFIX
-#define MODULE_SYMBOL_PREFIX ""
-#endif
-
-#define __EXPORT_SYMBOL(sym, sec) 				\
-extern typeof(sym) sym; 			\
-static const char __kstrtab_##sym[] \
-__attribute__((section("__ksymtab_strings"), aligned(1))) \
-= MODULE_SYMBOL_PREFIX #sym; 		\
-static const struct kernel_symbol __ksymtab_##sym \
-	  __used								\
-__attribute__((section("__ksymtab" sec), unused)) \
-= { (unsigned long)&sym, __kstrtab_##sym }
-
-#define EXPORT_SYMBOL(sym) __EXPORT_SYMBOL(sym, "")
 
 EXPORT_SYMBOL(pci_ioremap_bar);
 EXPORT_SYMBOL(pci_enable_device);
