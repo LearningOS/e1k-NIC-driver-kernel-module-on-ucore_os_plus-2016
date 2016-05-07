@@ -4,7 +4,7 @@ endif
 
 PHONY+=all subdir clean
 
-TARGET_CFLAGS := -ggdb
+#TARGET_CFLAGS := -ggdb
 #TARGET_CFLAGS := -g -ggdb 
 TARGET_CFLAGS += -fno-builtin -nostdlib  -nostdinc -fno-common
 TARGET_CFLAGS += -D__KERNEL__ -D__KERN__ 

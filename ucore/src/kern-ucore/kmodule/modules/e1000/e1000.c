@@ -272,7 +272,7 @@ static int __init e1000_init_module(void)
 
 	//pr_info("%s\n", e1000_copyright);
 
-	printk("register init\n");
+	//printk("register init\n");
 	ret = pci_register_e1000();
 	printk("register ok");
 	

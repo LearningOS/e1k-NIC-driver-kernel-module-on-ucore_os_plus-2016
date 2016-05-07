@@ -16,21 +16,15 @@ struct pci_device_id ent;
 
 void e1000_dev_init(struct pci_func *pcif) {
 	memset(&e1000_dev, 0, sizeof(struct pci_dev));
-	kprintf("5\n");
 
-	kprintf("%d",pcif->dev_id);
-	kprintf("ada\n");
 
 	e1000_dev.vendor = PCI_VENDOR(pcif->dev_id);
     e1000_dev.device = PCI_PRODUCT(pcif->dev_id);
-	kprintf("6\n");
 
     e1000_dev.devfn = (pcif->dev << 3) + pcif->func;
     e1000_dev.dev.init_name = e1000_dev_name;
 	
-	kprintf("%d| %d| %d",e1000_dev.vendor,e1000_dev.device,e1000_dev.devfn);
     pci_setup_device(&e1000_dev);
-	kprintf("7\n");
 
 }
 
@@ -99,7 +93,6 @@ void
 transmit_packet(void *buf, size_t size) {
     struct sk_buff *skb;
     skb = alloc_skb_from_buf(buf, size);
-	kprintf("\nlzk trans\n");
     netdev->netdev_ops->ndo_start_xmit(skb, netdev);
 }
 
@@ -129,9 +122,9 @@ void stop_e1000() {
 }
 
 void e1000_intr_trap(int irq) {
-    kprintf("processing e1000 intr\n");
+    //kprintf("processing e1000 intr\n");
     e1000_intr(irq, netdev);
-    kprintf("processing e1000 intr done\n");
+    //kprintf("processing e1000 intr done\n");
 }
 
 int e1000_irq_handler(int irq, void* data) {
@@ -158,14 +151,10 @@ int request_threaded_irq(unsigned int irq, irq_handler_t handler,
 //}
 
 int pci_register_e1000() {
-	kprintf("0\n");
 	memset(&pcif_handler,0,sizeof(struct pci_func));
 	e1000_pcif_get(&pcif_handler);//get
-	kprintf("1\n");
 	e1000_dev_init(&pcif_handler);//init
-	kprintf("2\n");
 	register_transmit_func(&transmit_packet);
-	kprintf("3\n");
 
     
 	e1000_probe(&e1000_dev, &ent);//set relation between pci and e1000(set as an netdevice in it)
