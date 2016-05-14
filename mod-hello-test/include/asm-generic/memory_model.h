@@ -1,4 +1,0 @@
-#ifndef __ASM_GENERIC_MEMORY_MODEL_H__
-#define __ASM_GENERIC_MEMORY_MODEL_H__
-
-#endif /* ! __ASM_GENERIC_MEMORY_MODEL_H__ */
