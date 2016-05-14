@@ -33,7 +33,8 @@ From 10.0.2.2 icmp_seq=1 Destination Host Unreachable
 From 10.0.2.2 icmp_seq=1 Destination Host Unreachable
 >>说明
 >>1. 田博学长在ucore中移植了一个小型的ip栈(lwip),e1000 dirver为lwip的底层函数提供支持，因而ping可以得到正确的返回结果
->>2. 在默认情况下,qemu内的guest os是无法直接从外部网络访问的,需要配置TAP connection。具体配置可以参考http://nairobi-embedded.org/a_qemu_tap_networking_setup.html
+>>2. 在默认情况下,qemu内的guest os是无法直接从外部网络访问的,需要配置TAP connection。具体配置可以参考[1](http://nairobi-embedded.org/a_qemu_tap_networking_setup.html)
+[2](https://tthtlc.wordpress.com/2015/10/21/qemu-how-to-setup-tuntap-bridge-networking/)
 >>3. 由于现在还没有在ucore中添加ifconfig,无法通过系统调用完成driver的open和close工作，因此将open和close放在模块的init和exit中
 >>4. qemu和host network相连的网关地址是10.0.2.2,qemu内部操作系统的虚拟ip地址是10.0.2.15 qemu network详细内容可参考[1](http://wiki.qemu.org/Documentation/Networking) [2](https://en.wikibooks.org/wiki/QEMU/Networking#TAP_interfaces)
 >>5. 为此对uCore_run进行了修改，qemu的启动参数增加
