@@ -109,6 +109,9 @@ static inline void dma_free_attrs(struct device *dev, size_t size,
 				  void *vaddr, dma_addr_t bus,
 				  struct dma_attrs *attrs)
 {
+	void ucore_dma_free_coherent(void *dev, size_t size, void *vaddr, uint32_t bus);
+	return ucore_dma_free_coherent(dev, size, vaddr, (uint32_t)bus);
+
 	struct dma_map_ops *ops = get_dma_ops(dev);
 
 	WARN_ON(irqs_disabled());       /* for portability */

@@ -129,6 +129,7 @@ void e1000_intr_trap(int irq) {
 
 int e1000_irq_handler(int irq, void* data) {
 	e1000_intr_trap(irq);
+	//e1000_intr(irq, data);
 	lapiceoi();
 	return 0;
 }
@@ -150,6 +151,8 @@ int request_threaded_irq(unsigned int irq, irq_handler_t handler,
 //    e1000_dev_init(pcif);//setup pci device
 //}
 
+//mv lwip to another module in future
+int flag=1;
 int pci_register_e1000() {
 	memset(&pcif_handler,0,sizeof(struct pci_func));
 	e1000_pcif_get(&pcif_handler);//get
@@ -164,8 +167,13 @@ int pci_register_e1000() {
 	
 	//tmp test, should call by ifconfig in future
 	open_e1000();
-	void init_lwip_dev();
-	init_lwip_dev();
+	
+	if (flag)
+	{
+		void init_lwip_dev();
+		init_lwip_dev();
+		flag = 0;
+	}
 	return 0;
 }
 int pci_unregister_e1000(){

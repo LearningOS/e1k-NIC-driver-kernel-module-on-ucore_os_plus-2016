@@ -1302,3 +1302,8 @@ void *ucore_dma_alloc_coherent(void *dev, size_t size, uint32_t *dma_handle, gfp
     kprintf("alloc dma handle %x saved to %x virtual %x\n", *dma_handle, dma_handle, ret);
     return ret;
 }
+
+void ucore_dma_free_coherent(void *dev, size_t size, void *vaddr, uint32_t bus) {
+	ucore_kfree(vaddr);
+}
+
