@@ -203,9 +203,19 @@ http_request_parse(struct http_request *req, char *request)
 		request++;
 	url_len = request - url;
 
-	req->url = kmalloc(url_len + 1);
-	memmove(req->url, url, url_len);
-	req->url[url_len] = '\0';
+	// if url is / , append "index.html" to end
+	if (*url == '/')
+		{
+			req->url = kmalloc(11);
+			char * index = "index.html";
+			memmove(req->url, index, 11);
+		}
+	else
+		{
+			req->url = kmalloc(url_len + 1);
+			memmove(req->url, url, url_len);
+			req->url[url_len] = '\0';
+		}
 
 	// skip space
 	request++;
