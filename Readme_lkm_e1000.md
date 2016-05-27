@@ -45,36 +45,36 @@ EXTRA_OPT+=" -net nic,macaddr=`source genmac.sh` -net tap,ifname=tap    0,script
 
 ###loadable kernel module的支持
 1. 往届已经比较完善，推荐阅读[Linux 可加载内核模块剖析](http://www.ibm.com/developerworks/cn/linux/l-lkm/),但在加载linux module时,因为linux module和ucore module大小不同,所以会出现关键位置,所以要在ucore module结构中增加padding使之对齐^[1]^,因此在移植新的linux模块的时候，可能要对padding进行修改,参考OsTrain2015/KernelModule，可以通过比较src/kern-ucore/kmodule/modules/mod-test2的结果和项目根目录下mod-hello-test的结果进行快速修改。
-2. 对于如何解决linux header和ucore header 函数命名相同的情况下对ucore资源的调用，参考2015/KernelModule的处理方式，设计kmodule文件的结构如下
--- LinuxAdapter
-|
-| - ucoreFunctions 
-|  (只能引用ucore的header, 
-|   设计ucore_*函数,
-|	内部调用ucore中的函数)
-|
-| - linuxFunctions 
-|  (只能引用ucore的header,  
-|   一些linux常用函数的实现,
-|	调用uCoreFunctions中的函数)
-|
-| - include 
-|  (一个通过header-gen生成的linux header组) 
-|
--- modules
-|
-| - mod-A
->	| - A.c
->    | - A.dummy.c
->    |	(linux针对A特有函数的实现
->    |	作为module的一部分）
->    |	
->    | - mod-A.dep
->    |	(各模块依赖关系)
+2. 对于如何解决linux header和ucore header 函数命名相同的情况下对ucore资源的调用，参考2015/KernelModule的处理方式，设计kmodule文件的结构如下  
+-- LinuxAdapter  
+|  
+| - ucoreFunctions   
+|  (只能引用ucore的header,   
+|   设计ucore_*函数,  
+|	内部调用ucore中的函数)  
+|  
+| - linuxFunctions   
+|  (只能引用ucore的header,    
+|   一些linux常用函数的实现,  
+|	调用uCoreFunctions中的函数)   
+|  
+| - include   
+|  (一个通过header-gen生成的linux header组)   
+|   
+-- modules  
+|  
+| - mod-A   
+>	| - A.c  
+>    | - A.dummy.c  
+>    |	(linux针对A特有函数的实现  
+>    |	作为module的一部分）  
+>    |	 
+>    | - mod-A.dep  
+>    |	(各模块依赖关系)  
  
- |
- | -	...
- 
+ |   
+ | -	...   
+    
  比如linux和ucore中都有memset这个函数,现在形成的调用关系为memset(linux)-->ucore_memset(ucoreFunctions)-->memset(ucore)
 同时在kmodule/Makefile中添加-ILinuxAdapter/include，通过这两种方式,实现了ucore func和linux func的隔离。在LinuxAdapter/Makefile中ucoreFunctions先于linuxFunctions编译，确保linuxFunctons中函数可以调用ucoreFunctions中函数。在未来添加新的lkm时,在\*.dummy.c中实现对应的函数,就可以实现模块的可加载,为了实现linuxFunctions函数符号的导出,新建了LinuxAdapter/include/ucore_export.h函数，在其中定义了`EXPORT_SYMBOL`
 通过引入linuxFunctions文件夹,可以减少\*.dummy.c中函数的重复实现，减小module的大小
