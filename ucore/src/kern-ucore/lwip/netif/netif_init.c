@@ -38,8 +38,11 @@ void init_lwip_dev() {
         netif.flags |= NETIF_FLAG_UP;
     }
 
-	void http_server_netconn_init(void);
-	http_server_netconn_init();
+	//void http_server_netconn_init(void);
+	//http_server_netconn_init();
+	void httpd_init(void);
+	httpd_init();
+
 	
     //void httpd_main(int argc, char **argv);
     //sys_thread_new("http_server", httpd_main, 0, 0, 0);
