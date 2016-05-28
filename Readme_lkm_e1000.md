@@ -127,13 +127,17 @@ struct irq_action actions[NR_IRQS];
 	ucore内核启动并完成对所有PCI设备进行扫描、登录和分配资源等初始化操作的同时，会建立起系统中所有PCI设备的拓扑结构，目前只检测了PCI_CLASS_BRIDGE和e1000网卡类型，后续有需要可以添加其他类型。这部分代码主要位于`arch/i386/driver/pci.c`,在2015/ucore4edison已有很好的实现，不难理解。另外可以阅读[Linux下PCI设备驱动程序开发](https://www.ibm.com/developerworks/cn/linux/l-pci/)进行参考
 
 4. dma
-	下面一段摘自2015/ucore4edison报告
+	- 下面一段摘自2015/ucore4edison报告
     DMA 的实现实际可以很简单。首先硬件只需要知道 DMA 区域的物理
 地址就可以正常的 DMA,并不需要什么干预。由于 ucore 的内存机制比较
 简单,分配一块 DMA 区域(dma_alloc_coherent)只需要在 kmalloc 后获取
 相应的物理、虚拟地址,而虚拟内存的 DMA 映射(dma_map_single_attrs)
 只需要返回虚拟地址的物理地址即可(减去偏移)^[4]^
-
+    - dma 中断处理
+     - 发送  直接io操作寄存器处理
+     - 接收在e1000 driver中，使用了NAPI
+       received a package->e1000_intr->IRQ_disable,_schedule()->napi_complete,send data to top layer  
+       
 要想对linux device driver有一个基本的了解， 推荐阅读[ldd3](https://lwn.net/Kernel/LDD3/)chapter9 I/O chapter10 Interrupt  chapter12 PCI
 
 ###e1000 lkm设计  <a name="paragraph5"></a>
